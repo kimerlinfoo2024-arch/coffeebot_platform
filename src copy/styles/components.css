@@ -1,0 +1,172 @@
+/* ============================================================
+   Shared component classes
+   ============================================================ */
+
+/* ---- panel / card ---- */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s5);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); flex-wrap: wrap; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.card.soft { background: var(--bg-soft); }
+.card.interactive { cursor: pointer; transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); text-align: left; font: inherit; color: inherit; }
+.card.interactive:hover { transform: translateY(-3px); box-shadow: var(--sh-md); border-color: var(--brew); }
+.card.interactive:active { transform: translateY(-1px); }
+
+/* ---- buttons ---- */
+.btn {
+  font: inherit; font-weight: 700; font-size: var(--t-sm);
+  padding: 9px 16px; border-radius: var(--r-pill);
+  border: 2px solid var(--ink); cursor: pointer;
+  background: var(--ink); color: #fff;
+  align-self: flex-start;
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), background var(--dur-fast);
+  display: inline-flex; align-items: center; gap: 7px;
+  text-decoration: none;
+}
+.btn.center { align-self: center; }
+.btn:hover { box-shadow: var(--sh-sm); }
+.btn:active { transform: translateY(1px); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.btn.ok { background: var(--leaf); border-color: var(--leaf); }
+.btn.sm { font-size: var(--t-xs); padding: 6px 13px; }
+.btn.lg { font-size: var(--t-base); padding: 12px 24px; }
+.btn.block { align-self: stretch; justify-content: center; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* chunky hero pill (the reference look) */
+.pill {
+  font: inherit; font-weight: 700; font-size: var(--t-base);
+  padding: 11px 24px; border-radius: var(--r-pill);
+  border: 2px solid var(--ink); background: #fff; color: var(--ink);
+  cursor: pointer; box-shadow: var(--sh-hard);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  text-decoration: none; display: inline-block;
+}
+.pill.dark { background: var(--ink); color: #fff; }
+.pill:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.pill:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ---- tags ---- */
+.tag { font-size: var(--t-xs); font-weight: 700; padding: 3px 10px; border-radius: var(--r-pill); white-space: nowrap; align-self: flex-start; display: inline-block; }
+.t-wet { background: var(--teal-soft); color: var(--teal); }
+.t-dry { background: var(--amber-soft); color: var(--amber); }
+.t-ok  { background: var(--leaf-soft); color: var(--leaf); }
+.t-gen { background: var(--bg-soft); color: var(--muted); }
+.t-bad { background: var(--bad-soft); color: var(--bad); }
+
+/* ---- stats ---- */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s3); }
+@media (max-width: 860px) { .stats { grid-template-columns: 1fr 1fr; } }
+.stat {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: var(--s4); min-width: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.stat b { font-family: var(--display); font-size: 28px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .lbl { font-size: var(--t-sm); color: var(--muted); }
+.stat.lead { background: var(--brew); border-color: var(--brew); color: #fff; }
+.stat.lead .lbl { color: #fff; opacity: .82; }
+.stat.warn { border-color: var(--bad); background: var(--bad-soft); }
+
+/* ---- lists ---- */
+.list { display: flex; flex-direction: column; }
+.list > div { display: flex; justify-content: space-between; gap: var(--s3); padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: var(--t-base); flex-wrap: wrap; }
+.list > div:last-child { border-bottom: 0; }
+
+/* ---- forms ---- */
+label { display: block; font-weight: 600; font-size: var(--t-sm); margin-bottom: 4px; }
+.field { display: flex; flex-direction: column; }
+input[type=text], input[type=email], input[type=number], select, textarea {
+  font: inherit; width: 100%; padding: 10px 12px;
+  border-radius: var(--r-sm); border: 1px solid var(--line);
+  background: #fff; color: var(--ink);
+  transition: border-color var(--dur-fast);
+}
+input:hover, select:hover, textarea:hover { border-color: var(--brew); }
+textarea { min-height: 96px; resize: vertical; }
+
+select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  padding-right: 38px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B4A2E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+}
+select:focus-visible { border-color: var(--teal); }
+option { color: var(--ink); background: #fff; }
+.msg { font-size: var(--t-sm); min-height: 1.2em; }
+.msg.ok { color: var(--leaf); } .msg.bad { color: var(--bad); }
+
+/* ---- tables ---- */
+table { border-collapse: collapse; width: 100%; min-width: 640px; }
+th, td { text-align: left; padding: 10px 6px; border-bottom: 1px solid var(--line); font-size: var(--t-base); }
+th { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+td.badc { color: var(--bad); font-weight: 700; }
+
+/* ---- subnav (tabs) ---- */
+.subnav { display: flex; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s4); }
+.subnav button {
+  font: inherit; font-weight: 700; font-size: var(--t-sm);
+  padding: 8px 16px; border-radius: var(--r-pill);
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  cursor: pointer; transition: all var(--dur-fast);
+}
+.subnav button:hover { border-color: var(--brew); color: var(--ink); }
+.subnav button[aria-selected="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* ---- quiz option ---- */
+.opt {
+  display: block; width: 100%; text-align: left; font: inherit;
+  padding: 11px 13px; border-radius: var(--r-sm); border: 1px solid var(--line);
+  background: #fff; color: var(--ink); cursor: pointer;
+  transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast);
+}
+.opt:hover { border-color: var(--brew); }
+.opt[data-state="right"] { background: var(--leaf-soft); border-color: var(--leaf); }
+.opt[data-state="wrong"] { background: var(--bad-soft); border-color: var(--bad); }
+
+/* ---- toast ---- */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: #fff; padding: 11px 18px;
+  border-radius: var(--r-pill); font-weight: 600; font-size: var(--t-base);
+  max-width: calc(100% - 32px); text-align: center; z-index: 60;
+  box-shadow: var(--sh-md);
+}
+
+/* ---- chart legend ---- */
+.chart-legend { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s3); }
+.chart-legend.col { flex-direction: column; gap: var(--s2); min-width: 160px; }
+.chart-legend .leg { display: flex; align-items: center; gap: 7px; font-size: var(--t-sm); color: var(--muted); }
+.chart-legend .leg i { width: 11px; height: 11px; border-radius: 3px; flex: 0 0 auto; }
+
+/* ---- glass surface (used sparingly) ---- */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-md);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .glass { backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); }
+}
