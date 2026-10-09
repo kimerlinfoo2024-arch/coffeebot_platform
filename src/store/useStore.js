@@ -117,6 +117,27 @@ export const useStore = create((set, get) => ({
     get().showToast(`${req.name} approved. ${req.cap} kg a week now has a destination.`);
   },
 
+  /** log a new grounds batch (traceability) */
+  addBatch(batch) {
+    const { nextId } = get();
+    set((s) => ({
+      batches: [{ id: nextId, ...batch }, ...s.batches],
+      feed: [`Logged ${batch.kg} kg from ${batch.source}`, ...s.feed],
+      nextId: nextId + 1,
+    }));
+    get().showToast(`Batch #${nextId} logged.`);
+  },
+
+  /** patch a batch — status, use, partner or notes */
+  updateBatch(id, patch) {
+    set((s) => ({ batches: s.batches.map((b) => (b.id === id ? { ...b, ...patch } : b)) }));
+  },
+
+  /** toggle what the public About page shows */
+  setVisibility(key, on) {
+    set((s) => ({ visibility: { ...s.visibility, [key]: on } }));
+  },
+
   /** contact / message into the staff inbox */
   addMessage({ topic, text }) {
     const { user } = get();

@@ -1,0 +1,15 @@
+/* Staff overview — section rhythm and equal-height panel rows */
+.stack.ov { gap: var(--s6); }
+.ov-head { margin-bottom: var(--s3); }
+.grid2.ov-row { align-items: stretch; }
+.ov-foot { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-top: auto; padding-top: var(--s3); border-top: 1px dashed var(--line); font-size: var(--t-sm); color: var(--muted); }
+.ov-foot b { color: var(--ink); }
+.ov-foot .badc b, b.badc { color: var(--bad); }
+
+.panel.ov-plan { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(220px, 1fr); gap: var(--s5); align-items: center; }
+.ov-plan-list { border-left: 1px solid var(--line); padding-left: var(--s5); }
+.ov-plan-list .btn { margin-top: var(--s3); }
+@media (max-width: 860px) {
+  .panel.ov-plan { grid-template-columns: 1fr; }
+  .ov-plan-list { border-left: 0; padding-left: 0; }
+}

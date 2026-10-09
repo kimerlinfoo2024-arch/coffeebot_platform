@@ -10,14 +10,16 @@ const PUBLIC_NAV = [
 ];
 const ORG_NAV = [
   ['/app', 'Dashboard'],
-  ['/app/learn', 'Learn & Do'],
+  ['/app/learn', 'Courses'],
   ['/app/play', 'Quizzes & Missions'],
   ['/app/bookings', 'My Bookings'],
 ];
 const STAFF_NAV = [
   ['/staff', 'Overview'],
+  ['/staff/grounds', 'Grounds Log'],
   ['/staff/plan', 'Drying Plan'],
   ['/staff/partners', 'Partners'],
+  ['/staff/reports', 'Reports'],
 ];
 
 export default function Header() {
@@ -74,7 +76,7 @@ export default function Header() {
                   <span className="small muted">{user.email}</span>
                   <span className="small">{user.org}</span>
                   <span className={`role-pill ${user.staff ? 'rp-staff' : 'rp-org'}`}>
-                    {user.staff ? 'CoffeeBot staff' : 'School or workplace'}
+                    {user.staff ? 'CoffeeBot staff' : 'Education partner'}
                   </span>
                   <button className="btn ghost sm" onClick={() => { signOut(); setOpen(false); navigate('/'); }}>
                     Sign out

@@ -1,0 +1,51 @@
+/* Grounds log — batch table + sticky side panel */
+.grounds-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: var(--s4); align-items: start; }
+.grounds-aside { position: sticky; top: 90px; }
+@media (max-width: 960px) {
+  .grounds-grid { grid-template-columns: 1fr; }
+  .grounds-aside { position: static; }
+}
+
+.batch-table { min-width: 560px; }
+.batch-table td { vertical-align: top; line-height: 1.45; }
+.batch-table tbody tr { cursor: pointer; transition: background var(--dur-fast); }
+.batch-table tbody tr:hover { background: var(--bg-soft); }
+.batch-table tbody tr[aria-selected="true"] { background: var(--bg-soft); box-shadow: inset 3px 0 0 var(--brew); }
+.batch-table tbody tr:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+
+.chip-kg { opacity: .65; font-weight: 500; margin-left: 2px; }
+
+.subnav.status-pick { margin-bottom: 0; gap: 6px; }
+.subnav.status-pick button { padding: 5px 11px; }
+.status-pick button[aria-checked="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.grounds-side input[type=date] {
+  font: inherit; width: 100%; padding: 9px 12px;
+  border-radius: var(--r-sm); border: 1px solid var(--line);
+  background: #fff; color: var(--ink);
+}
+.grounds-side input[type=date]:hover { border-color: var(--brew); }
+.grounds-side textarea { min-height: 72px; }
+
+.subnav.filter-chips { margin-bottom: 0; gap: 6px; }
+.subnav.filter-chips button { padding: 6px 12px; font-size: var(--t-xs); }
+
+.batch-table .c-id { white-space: nowrap; }
+.batch-table .c-unit { display: none; }
+
+/* phones: each batch collapses to two lines instead of a sideways-scrolling table */
+@media (max-width: 640px) {
+  .batch-table { min-width: 0; }
+  .batch-table thead { display: none; }
+  .batch-table tbody tr {
+    display: grid; grid-template-columns: auto 1fr auto; column-gap: var(--s3); row-gap: 4px;
+    padding: 12px 4px; border-bottom: 1px solid var(--line);
+  }
+  .batch-table td { border: 0; padding: 0; }
+  .batch-table .c-id { grid-column: 1; grid-row: 1 / span 2; }
+  .batch-table .c-src { grid-column: 2; grid-row: 1; }
+  .batch-table .c-kg { grid-column: 3; grid-row: 1; }
+  .batch-table .c-dest { grid-column: 2; grid-row: 2; font-size: var(--t-sm); }
+  .batch-table .c-status { grid-column: 3; grid-row: 2; text-align: right; }
+  .batch-table .c-unit { display: inline; font-weight: 400; }
+}

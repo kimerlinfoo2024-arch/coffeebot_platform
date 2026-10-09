@@ -21,6 +21,8 @@ import MyBookings from './pages/org/MyBookings';
 import Overview from './pages/staff/Overview';
 import DryingPlan from './pages/staff/DryingPlan';
 import Partners from './pages/staff/Partners';
+import Grounds from './pages/staff/Grounds';
+import Reports from './pages/staff/Reports';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -51,7 +53,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/signin" element={<SignIn />} />
 
-            {/* school / workplace */}
+            {/* education partner (school / workplace) */}
             <Route path="/app" element={<RequireRole need="org"><Dashboard /></RequireRole>} />
             <Route path="/app/learn" element={<RequireRole need="org"><LearnDo /></RequireRole>} />
             <Route path="/app/play" element={<RequireRole need="org"><Play /></RequireRole>} />
@@ -62,6 +64,8 @@ export default function App() {
             <Route path="/staff" element={<RequireRole need="staff"><Overview /></RequireRole>} />
             <Route path="/staff/plan" element={<RequireRole need="staff"><DryingPlan /></RequireRole>} />
             <Route path="/staff/partners" element={<RequireRole need="staff"><Partners /></RequireRole>} />
+            <Route path="/staff/grounds" element={<RequireRole need="staff"><Grounds /></RequireRole>} />
+            <Route path="/staff/reports" element={<RequireRole need="staff"><Reports /></RequireRole>} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

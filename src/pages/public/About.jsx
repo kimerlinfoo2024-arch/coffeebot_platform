@@ -5,6 +5,8 @@ import Page from '../../components/ui/Page';
 import ClosedLoop from '../../components/ui/ClosedLoop';
 import { useStore } from '../../store/useStore';
 import { ACTS } from '../../data/seed';
+import { Donut } from '../../components/ui/charts';
+import { pathways, usageTotals, fmt } from '../../lib/calc';
 
 const reveal = {
   initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
@@ -12,11 +14,16 @@ const reveal = {
 };
 
 export default function About() {
-  const { reusedYear, bookings, reach, partners } = useStore((s) => ({
+  const { reusedYear, bookings, reach, partners, batches, usage, visibility: vis } = useStore((s) => ({
     reusedYear: s.reusedYear, bookings: s.bookings, reach: s.reach, partners: s.partners,
+    batches: s.batches, usage: s.usage, visibility: s.visibility,
   }));
   const actKg = bookings.reduce((a, b) => a + b.kg, 0);
   const orgs = new Set(bookings.map((b) => b.org)).size + 2;
+  // only reused or in-progress grounds are shown publicly — landfill stays internal
+  const paths = pathways(batches.filter((b) => b.status !== 'Disposed' && b.use !== 'Landfill' && b.use !== 'Unassigned'));
+  const cups = usageTotals(usage).cups;
+  const anyStats = vis.grounds || vis.reach || vis.partners || vis.usage;
 
   return (
     <Page>
@@ -29,15 +36,39 @@ export default function About() {
         </p>
       </div>
 
-      <motion.div {...reveal} className="stats">
-        <div className="stat lead"><Counter to={reusedYear + actKg} suffix=" kg" className="bignum" /><span className="lbl">Grounds given a second life this year</span></div>
-        <div className="stat"><Counter to={reach.people} className="bignum" /><span className="lbl">People reached through activities</span></div>
-        <div className="stat"><Counter to={orgs} className="bignum" /><span className="lbl">Schools and workplaces</span></div>
-        <div className="stat"><Counter to={partners.length} className="bignum" /><span className="lbl">Reuse partners</span></div>
-      </motion.div>
-      <p className="small muted" style={{ margin: '12px 0 var(--s6)' }}>
-        Figures update from CoffeeBot's operations dashboard. Reuse only counts once a partner or activity confirms it.
-      </p>
+      {anyStats && (
+        <>
+          <motion.div {...reveal} className="stats">
+            {vis.grounds && <div className="stat lead"><Counter to={reusedYear + actKg} suffix=" kg" className="bignum" /><span className="lbl">Grounds given a second life this year</span></div>}
+            {vis.reach && <div className="stat"><Counter to={reach.people} className="bignum" /><span className="lbl">People reached through activities</span></div>}
+            {vis.reach && <div className="stat"><Counter to={orgs} className="bignum" /><span className="lbl">Schools and workplaces</span></div>}
+            {vis.partners && <div className="stat"><Counter to={partners.length} className="bignum" /><span className="lbl">Reuse partners</span></div>}
+            {vis.usage && <div className="stat"><Counter to={cups} className="bignum" /><span className="lbl">Cups served in the last 4 weeks</span></div>}
+          </motion.div>
+          <p className="small muted" style={{ margin: '12px 0 var(--s6)' }}>
+            Figures update from CoffeeBot's operations dashboard. Reuse only counts once a partner or activity confirms it.
+          </p>
+        </>
+      )}
+
+      {(vis.pathways || vis.partners) && (
+        <div className="grid2" style={{ marginTop: 'var(--s6)' }}>
+          {vis.pathways && (
+            <motion.div {...reveal} className="panel">
+              <h2>Where grounds go</h2>
+              <Donut segments={paths} centerLabel={fmt(paths.reduce((a, p) => a + p.value, 0))} centerSub="kg, last 4 weeks" />
+            </motion.div>
+          )}
+          {vis.partners && (
+            <motion.div {...reveal} className="panel">
+              <h2>Our reuse partners</h2>
+              <div className="list">
+                {partners.map((p) => <div key={p.name}><span>{p.name}</span><span className="small muted">{p.kind}</span></div>)}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
       <h2 style={{ margin: 'var(--s7) 0 var(--s3)' }}>What grounds become</h2>
       <div className="grid3">

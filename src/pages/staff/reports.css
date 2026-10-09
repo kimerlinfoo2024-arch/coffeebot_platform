@@ -1,0 +1,16 @@
+/* Reports — document-style preview + print layout */
+.report { gap: var(--s5); }
+.report section { display: flex; flex-direction: column; gap: var(--s2); }
+.report section h3 { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.report footer { border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+.switch { width: 18px; height: 18px; accent-color: var(--leaf); cursor: pointer; }
+
+@media print {
+  .hdr, .ftr, .no-print, .toast { display: none !important; }
+  body { background: #fff !important; }
+  .page { padding: 0 !important; max-width: 100% !important; }
+  .report { border: 0 !important; box-shadow: none !important; padding: 0 !important; opacity: 1 !important; transform: none !important; }
+  .report .stats { grid-template-columns: repeat(4, 1fr); }
+  .report section { break-inside: avoid; }
+}

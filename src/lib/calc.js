@@ -3,7 +3,7 @@
    Pure functions so both org and staff views share one source
    of truth.
    ============================================================ */
-import { ACTS, WEEKS, COLLECTED } from '../data/seed';
+import { ACTS, WEEKS, COLLECTED, GROUNDS_PER_CUP } from '../data/seed';
 
 export const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString();
 
@@ -48,4 +48,46 @@ export function groundsTotals(bookings, partners) {
     risk += x.risk;
   });
   return { act, part, risk, collected: COLLECTED * WEEKS.length };
+}
+
+/* ---- traceability + usage ---- */
+
+/** colour per reuse pathway, shared by every chart that shows them */
+export const USE_COLOR = {
+  'Compost': 'var(--leaf)', 'Mushroom growing': 'var(--teal)', 'Activity kits': 'var(--brew)',
+  'Skincare': 'var(--amber)', 'Unassigned': 'var(--muted)', 'Landfill': 'var(--bad)',
+};
+
+/** kg logged per reuse pathway → [{ name, value, color }] */
+export function pathways(batches) {
+  const by = {};
+  batches.forEach((b) => { by[b.use] = (by[b.use] || 0) + b.kg; });
+  return Object.entries(by).map(([name, value]) => ({ name, value, color: USE_COLOR[name] || 'var(--ink)' }));
+}
+
+/** headline traceability figures from the batch log */
+export function batchTotals(batches) {
+  const sum = (f) => batches.filter(f).reduce((a, b) => a + b.kg, 0);
+  const logged = sum(() => true);
+  const reused = sum((b) => b.status === 'Reused');
+  const disposed = sum((b) => b.status === 'Disposed');
+  const inProgress = logged - reused - disposed;
+  const closed = reused + disposed;
+  return { logged, reused, disposed, inProgress, reuseRate: closed ? Math.round((reused / closed) * 100) : 0 };
+}
+
+/** coffee usage → grounds generated */
+export function usageTotals(usage) {
+  const cups = usage.reduce((a, u) => a + u.cups, 0);
+  return { cups, kg: cups * GROUNDS_PER_CUP, perWeek: usage.length ? cups / usage.length : 0 };
+}
+
+/** per-organisation education summary from bookings */
+export function educationByOrg(bookings) {
+  const by = {};
+  bookings.forEach((b) => {
+    const o = (by[b.org] ||= { org: b.org, sessions: 0, people: 0, kg: 0, acts: new Set() });
+    o.sessions += 1; o.people += b.people; o.kg += b.kg; o.acts.add(ACTS[b.act].name);
+  });
+  return Object.values(by).map((o) => ({ ...o, acts: [...o.acts].join(', ') }));
 }
