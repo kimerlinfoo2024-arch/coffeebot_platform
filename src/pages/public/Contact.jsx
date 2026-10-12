@@ -1,39 +1,60 @@
-import { useState } from 'react';
+import { motion } from 'framer-motion';
 import Page from '../../components/ui/Page';
-import { useStore } from '../../store/useStore';
+import Icon from '../../components/ui/Icon';
+import { COMPANY, telHref } from '../../data/company';
+import './contact.css';
+
+const TOPICS = [
+  ['Activities and bookings', 'Which activity suits your group, changing a booking, or what a session needs.'],
+  ['Your account', 'Trouble logging in, or your school or company is not being recognised.'],
+  ['Partnerships', 'You can put used coffee grounds to use and want a regular supply.'],
+];
 
 export default function Contact() {
-  const addMessage = useStore((s) => s.addMessage);
-  const [topic, setTopic] = useState('A booking');
-  const [text, setText] = useState('');
-  const [msg, setMsg] = useState({ ok: false, text: '' });
-
-  const submit = (e) => {
-    e.preventDefault();
-    if (!text.trim()) return setMsg({ ok: false, text: 'Write a message before sending.' });
-    addMessage({ topic, text: text.trim() });
-    setMsg({ ok: true, text: "Sent. It is now in CoffeeBot's inbox." });
-    setText('');
-  };
-
   return (
     <Page>
       <div className="pagehead">
         <span className="eyebrow">Contact</span>
         <h1>Talk to CoffeeBot</h1>
-        <p>Questions about activities, bookings or partnerships go straight to CoffeeBot's operations team.</p>
+        <p>Have a question, or need something clarified? Email us and the CoffeeBot team will get back to you.</p>
       </div>
-      <form className="panel" style={{ maxWidth: 560 }} noValidate onSubmit={submit}>
-        <div className="field"><label htmlFor="cTopic">Topic</label>
-          <select id="cTopic" value={topic} onChange={(e) => setTopic(e.target.value)}>
-            <option>A booking</option><option>Activities and lessons</option>
-            <option>Partnership</option><option>Something else</option>
-          </select></div>
-        <div className="field"><label htmlFor="cMsg">Message</label>
-          <textarea id="cMsg" placeholder="How can we help?" value={text} onChange={(e) => setText(e.target.value)} /></div>
-        <button className="btn" type="submit">Send message</button>
-        <div className={`msg ${msg.ok ? 'ok' : msg.text ? 'bad' : ''}`}>{msg.text}</div>
-      </form>
+
+      <motion.div className="contact-hero" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <div>
+          <span className="sticker-mini">Email us</span>
+          <a className="contact-mail" href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+          <p>Tell us your school or company and what you'd like to know. There's no form to fill in — an email is all we need.</p>
+        </div>
+        <a className="pill dark" href={`mailto:${COMPANY.email}?subject=${encodeURIComponent('Grounds Up enquiry')}`}>Write an email</a>
+      </motion.div>
+
+      <div className="grid2" style={{ marginTop: 'var(--s5)' }}>
+        {COMPANY.offices.map((o) => (
+          <address key={o.country} className="panel office">
+            <span className="tag t-gen">{o.country}</span>
+            <h2>{o.name}</h2>
+            <div className="office-row">
+              <Icon name="home" size={18} />
+              <span>{o.address.map((line) => <span key={line} className="line">{line}</span>)}</span>
+            </div>
+            <div className="office-row">
+              <Icon name="plug" size={18} />
+              <span>{o.phones.map((p) => <a key={p} className="line" href={telHref(p)}>{p}</a>)}</span>
+            </div>
+            <div className="office-row">
+              <Icon name="send" size={18} />
+              <a href={`mailto:${o.email}`}>{o.email}</a>
+            </div>
+          </address>
+        ))}
+      </div>
+
+      <div className="panel" style={{ marginTop: 'var(--s5)' }}>
+        <h2>What you can ask us about</h2>
+        <div className="grid3">
+          {TOPICS.map(([h, t]) => <div key={h} className="card soft"><h3>{h}</h3><p className="small muted">{t}</p></div>)}
+        </div>
+      </div>
     </Page>
   );
 }

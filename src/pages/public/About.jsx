@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Counter from '../../components/ui/Counter';
 import Page from '../../components/ui/Page';
-import ClosedLoop from '../../components/ui/ClosedLoop';
+import GroundsShowcase from '../../components/hero/GroundsShowcase';
 import { useStore } from '../../store/useStore';
-import { ACTS } from '../../data/seed';
 import { Donut } from '../../components/ui/charts';
 import { pathways, usageTotals, fmt } from '../../lib/calc';
 
@@ -12,6 +11,13 @@ const reveal = {
   initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: '-10%' }, transition: { duration: 0.45 },
 };
+
+const STEPS = [
+  ['Brew', 'A coffee is made, and the used grounds are left behind in the machine.'],
+  ['Collect', 'Grounds are kept apart from general waste and picked up on a schedule.'],
+  ['Sort and dry', 'Clean batches are dried for products. Fresh batches go straight to compost or growers.'],
+  ['Repurpose', 'The grounds become an ingredient in something new — see below.'],
+];
 
 export default function About() {
   const { reusedYear, bookings, reach, partners, batches, usage, visibility: vis } = useStore((s) => ({
@@ -70,24 +76,30 @@ export default function About() {
         </div>
       )}
 
-      <h2 style={{ margin: 'var(--s7) 0 var(--s3)' }}>What grounds become</h2>
-      <div className="grid3">
-        {Object.entries(ACTS).map(([k, v], i) => (
-          <motion.div key={k} {...reveal} transition={{ ...reveal.transition, delay: i * 0.05 }} className="card">
-            <span className={`tag ${v.wet ? 't-wet' : 't-dry'}`}>{v.wet ? 'Wet · no drying' : 'Dried grounds'}</span>
-            <b>{v.name}</b>
-            <span className="small muted">{v.learn}</span>
-          </motion.div>
-        ))}
+      <div className="pagehead" style={{ marginTop: 'var(--s7)' }}>
+        <span className="eyebrow">A resource, not just waste</span>
+        <h2 style={{ fontSize: 'var(--t-xl)', fontWeight: 900 }}>What used grounds can become</h2>
+        <p>Grounds don't have to end in the bin. Collected clean and handled quickly, they can be an ingredient in something new.</p>
       </div>
+
+      <ol className="reuse-steps">
+        {STEPS.map(([h, t], i) => (
+          <motion.li key={h} {...reveal} transition={{ ...reveal.transition, delay: i * 0.12 }}>
+            <b>{h}</b><span>{t}</span>
+          </motion.li>
+        ))}
+      </ol>
+
+      <motion.div {...reveal}><GroundsShowcase /></motion.div>
+      <p className="small muted" style={{ marginTop: 'var(--s3)', maxWidth: '80ch' }}>
+        These are possible uses, not guarantees. Grounds are one ingredient alongside others, and whether reuse is the
+        better option depends on how the grounds are collected, dried and transported.
+      </p>
 
       <motion.div {...reveal} className="panel center" style={{ marginTop: 'var(--s7)', alignItems: 'center', gap: 'var(--s3)' }}>
         <h2>Bring Grounds Up to your class or team</h2>
-        <p className="muted" style={{ maxWidth: '54ch' }}>Sign in with your school or workplace email to book activities, run quizzes and track the impact your group contributes.</p>
-        <div className="row wrap" style={{ justifyContent: 'center' }}>
-          <Link className="btn" to="/signin">Sign in</Link>
-          <Link className="btn ghost" to="/partner">Partner with us</Link>
-        </div>
+        <p className="muted" style={{ maxWidth: '54ch' }}>Create an account with your school or work email to open the Education Hub, book activities and run quizzes.</p>
+        <Link className="btn center" to="/signup">Sign up</Link>
       </motion.div>
     </Page>
   );

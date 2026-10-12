@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
+import { ROLE_HOME, ROLE_LABEL } from '../../data/orgs';
+import Icon from '../ui/Icon';
+import '../../pages/org/courses.css';
 
 const PUBLIC_NAV = [
   ['/', 'Home'],
@@ -10,6 +13,7 @@ const PUBLIC_NAV = [
 ];
 const ORG_NAV = [
   ['/app', 'Dashboard'],
+  ['/app/hub', 'Education Hub'],
   ['/app/learn', 'Courses'],
   ['/app/play', 'Quizzes & Missions'],
   ['/app/bookings', 'My Bookings'],
@@ -25,6 +29,7 @@ const STAFF_NAV = [
 export default function Header() {
   const user = useStore((s) => s.user);
   const signOut = useStore((s) => s.signOut);
+  const cartCount = useStore((s) => (s.user && !s.user.staff ? (s.carts[s.user.email] || []).length : 0));
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -44,7 +49,7 @@ export default function Header() {
   }, []);
 
   const nav = !user ? PUBLIC_NAV : user.staff ? STAFF_NAV : ORG_NAV;
-  const home = !user ? '/' : user.staff ? '/staff' : '/app';
+  const home = !user ? '/' : ROLE_HOME[user.role];
 
   return (
     <header className={`hdr ${scrolled ? 'scrolled' : ''}`}>
@@ -65,8 +70,18 @@ export default function Header() {
 
         <div className="hdr-right">
           {!user ? (
-            <button className="btn sm" onClick={() => navigate('/signin')}>Sign in</button>
+            <>
+              <Link className="btn ghost sm" to="/signin">Log in</Link>
+              <Link className="btn sm" to="/signup">Sign up</Link>
+            </>
           ) : (
+            <>
+            {!user.staff && (
+              <Link className="cart-link" to="/app/cart" aria-label={`Cart, ${cartCount} course${cartCount === 1 ? '' : 's'}`}>
+                <Icon name="cart" size={18} />
+                {cartCount > 0 && <span className="count" aria-hidden="true">{cartCount}</span>}
+              </Link>
+            )}
             <div className="prof" ref={menuRef}>
               <button aria-haspopup="true" aria-expanded={open} aria-label="Profile"
                 onClick={() => setOpen((o) => !o)}>{user.name.charAt(0)}</button>
@@ -76,14 +91,15 @@ export default function Header() {
                   <span className="small muted">{user.email}</span>
                   <span className="small">{user.org}</span>
                   <span className={`role-pill ${user.staff ? 'rp-staff' : 'rp-org'}`}>
-                    {user.staff ? 'CoffeeBot staff' : 'Education partner'}
+                    {ROLE_LABEL[user.role]}
                   </span>
-                  <button className="btn ghost sm" onClick={() => { signOut(); setOpen(false); navigate('/'); }}>
+                  <button className="btn ghost sm" onClick={() => { setOpen(false); navigate('/'); signOut(); }}>
                     Sign out
                   </button>
                 </div>
               )}
             </div>
+            </>
           )}
         </div>
       </div>

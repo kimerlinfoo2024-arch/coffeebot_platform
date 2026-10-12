@@ -33,7 +33,8 @@
 .nav a:hover { opacity: .65; }
 .nav a.active { border-bottom-color: var(--brew); }
 
-.hdr-right { display: flex; align-items: center; gap: var(--s3); justify-content: flex-end; }
+.hdr-right { display: flex; align-items: center; gap: var(--s2); justify-content: flex-end; }
+.hdr-right .btn { align-self: center; }
 
 /* profile */
 .prof { position: relative; }
@@ -50,19 +51,35 @@
 }
 .role-pill { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: var(--r-pill); align-self: flex-start; }
 .rp-staff { background: var(--brew); color: #fff; }
-.rp-org { background: var(--leaf-soft); color: var(--leaf); }
+.rp-org { background: var(--leaf-soft); color: #33592F; }
 
 @media (max-width: 760px) {
   .hdr-in { grid-template-columns: auto auto; }
   .nav { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; }
 }
 
-/* footer */
-.ftr { border-top: 1px solid var(--line); background: var(--bg-soft); margin-top: var(--s8); }
+/* footer — dark, with the oversized wordmark */
+.ftr { background: var(--ink); color: #F4EFE4; margin-top: var(--s8); overflow: hidden; }
 .ftr-in {
-  max-width: var(--maxw); margin: 0 auto; padding: var(--s6) var(--s4);
-  display: flex; justify-content: space-between; gap: var(--s5); flex-wrap: wrap;
+  max-width: var(--maxw); margin: 0 auto; padding: var(--s7) var(--s4) var(--s5);
+  display: flex; justify-content: space-between; gap: var(--s6); flex-wrap: wrap;
 }
-.ftr-in a { color: var(--muted); text-decoration: none; font-size: var(--t-sm); display: block; padding: 3px 0; }
-.ftr-in a:hover { color: var(--ink); }
-.ftr h4 { font-family: var(--display); font-size: var(--t-sm); margin: 0 0 var(--s2); letter-spacing: .06em; text-transform: uppercase; color: var(--ink); }
+.ftr-about { max-width: 34ch; }
+.ftr-about p { font-size: var(--t-sm); color: #CFC6B8; }
+.ftr h4 { font-family: var(--display); font-size: var(--t-base); margin: 0 0 var(--s2); color: #fff; }
+.ftr-in a, .ftr-in span {
+  display: block; padding: 3px 0; color: #CFC6B8; text-decoration: none;
+  font-size: var(--t-sm);
+}
+.ftr-in a:hover { color: #fff; text-decoration: underline; }
+.ftr-word {
+  font-family: var(--display); font-weight: 900; line-height: .9; letter-spacing: -.04em;
+  font-size: clamp(64px, 17.5vw, 232px); text-align: center; white-space: nowrap;
+  color: transparent; -webkit-text-stroke: 2px #F4EFE4; user-select: none;
+  max-width: var(--maxw); margin: 0 auto; padding: 0 var(--s4);
+}
+@supports not (-webkit-text-stroke: 1px #000) { .ftr-word { color: #F4EFE4; } }
+.ftr-legal {
+  max-width: var(--maxw); margin: 0 auto; padding: var(--s4) var(--s4) var(--s5);
+  font-size: var(--t-xs); color: #A79C8D;
+}

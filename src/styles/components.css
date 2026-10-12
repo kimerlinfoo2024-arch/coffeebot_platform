@@ -170,3 +170,15 @@ td.badc { color: var(--bad); font-weight: 700; }
 @supports (backdrop-filter: blur(1px)) {
   .glass { backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); }
 }
+
+/* ---- ticker strip ---- */
+.marquee { overflow: hidden; background: var(--amber-soft); border-block: 2px solid var(--ink); }
+.marquee-track { display: flex; width: max-content; animation: marquee 40s linear infinite; }
+.marquee span {
+  display: inline-flex; align-items: center; gap: 22px; padding: 9px 0 9px 22px; white-space: nowrap;
+  font-family: var(--display); font-size: var(--t-xs); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink);
+}
+.marquee i { display: block; width: 11px; transform: rotate(28deg); }
+.marquee i svg { display: block; width: 100%; height: auto; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }

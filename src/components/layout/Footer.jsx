@@ -1,27 +1,36 @@
 import { Link } from 'react-router-dom';
+import { useStore } from '../../store/useStore';
+import { COMPANY } from '../../data/company';
 
 export default function Footer() {
+  const user = useStore((s) => s.user);
+  const office = COMPANY.offices[0];
+
   return (
     <footer className="ftr">
       <div className="ftr-in">
-        <div style={{ maxWidth: '32ch' }}>
-          <h4>CoffeeBot · Grounds Up</h4>
-          <p className="small muted">
-            Turning used coffee grounds into measurable sustainability impact, visibility and
-            hands-on learning for schools, workplaces and families.
+        <div className="ftr-about">
+          <h4>Grounds Up by CoffeeBot</h4>
+          <p>
+            Used coffee grounds as a resource: hands-on sustainability learning for schools and workplaces.
           </p>
         </div>
+        {!user && (
+          <div>
+            <h4>Explore</h4>
+            <Link to="/about">About</Link>
+            <Link to="/partner">Partner with us</Link>
+            <Link to="/contact">Contact</Link>
+          </div>
+        )}
         <div>
-          <h4>Platform</h4>
-          <Link to="/about">About &amp; impact</Link>
-          <Link to="/signin">Sign in</Link>
-        </div>
-        <div>
-          <h4>Work with us</h4>
-          <Link to="/partner">Partner with us</Link>
-          <Link to="/contact">Contact</Link>
+          <h4>Get in touch</h4>
+          <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+          <span>{office.address.join(', ')}</span>
         </div>
       </div>
+      <div className="ftr-word" aria-hidden="true">coffeebot.</div>
+      <div className="ftr-legal">© {new Date().getFullYear()} {office.name}</div>
     </footer>
   );
 }

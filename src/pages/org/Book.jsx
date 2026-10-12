@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
 import { ACTS, WEEKS } from '../../data/seed';
@@ -12,13 +12,15 @@ export default function Book() {
   const bookings = useStore((s) => s.bookings);
   const addBooking = useStore((s) => s.addBooking);
 
-  const initialAct = ACTS[params.get('act')] ? params.get('act') : 'scrub';
+  const owned = useStore((s) => s.purchases[s.user.orgId]) || [];
+  const initialAct = owned.includes(params.get('act')) ? params.get('act') : owned[0];
   const [act, setAct] = useState(initialAct);
   const [people, setPeople] = useState(30);
   const [week, setWeek] = useState(null);
 
   const a = ACTS[act];
   const kg = kgFor(people);
+  const locked = Object.keys(ACTS).filter((k) => !owned.includes(k));
 
   const pickAct = (k) => {
     setAct(k);
@@ -36,6 +38,20 @@ export default function Book() {
     navigate('/app/bookings');
   };
 
+  // sessions can only be booked for courses the organisation has bought
+  if (!owned.length) {
+    return (
+      <Page>
+        <div className="pagehead">
+          <span className="eyebrow">Book a session</span>
+          <h1>Buy a course to start booking</h1>
+          <p>Sessions are booked for courses {user.org} has purchased. Once a course is in your account, you can schedule it here as often as you need.</p>
+        </div>
+        <Link className="btn" to="/app/learn">Browse courses</Link>
+      </Page>
+    );
+  }
+
   return (
     <Page>
       <div className="pagehead">
@@ -46,9 +62,9 @@ export default function Book() {
 
       <div className="grid2">
         <div className="panel">
-          <h2>1. Choose an activity</h2>
+          <h2>1. Choose one of your courses</h2>
           <div className="grid2" style={{ gap: 'var(--s2)' }}>
-            {Object.entries(ACTS).map(([k, v]) => (
+            {owned.map((k) => [k, ACTS[k]]).map(([k, v]) => (
               <button key={k} className="card interactive" aria-pressed={act === k}
                 style={{ borderColor: act === k ? 'var(--ink)' : undefined, boxShadow: act === k ? 'inset 0 0 0 1px var(--ink)' : undefined, gap: 4 }}
                 onClick={() => pickAct(k)}>
@@ -58,6 +74,10 @@ export default function Book() {
               </button>
             ))}
           </div>
+
+          {locked.length > 0 && (
+            <p className="small muted">{locked.length} more course{locked.length === 1 ? '' : 's'} available to buy. <Link to="/app/learn">See all courses</Link></p>
+          )}
 
           <h2 style={{ marginTop: 'var(--s3)' }}>2. How many people?</h2>
           <div className="field" style={{ maxWidth: 220 }}>

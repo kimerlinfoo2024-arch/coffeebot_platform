@@ -17,6 +17,9 @@ body {
   transition: background var(--dur-slow) var(--ease);
 }
 
+/* form controls don't inherit the page font by default — make them */
+button, input, select, textarea { font-family: inherit; }
+
 img, svg { max-width: 100%; }
 
 /* SVG wrapper: give the inner svg a definite size so it never drives a

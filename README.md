@@ -1,7 +1,8 @@
 # CoffeeBot · Grounds Up
 
-A digital **Circular Sustainability Hub** for CoffeeBot — one platform, two views,
-decided by sign-in email domain:
+A digital **Circular Sustainability Hub** for CoffeeBot — one platform, three account
+types. The dashboard a user reaches is decided by their account's organisation
+(see `src/data/orgs.js`), never chosen by hand:
 
 - **CoffeeBot staff** (`@coffeebot.com`) — measure the whole loop (consumption, grounds,
   reuse destinations, drying plan, partner approvals).
@@ -37,8 +38,8 @@ degrades to clean stacked, reveal-on-view sections on mobile and for
 ## Information architecture
 | Audience | Routes |
 |----------|--------|
-| Public | `/` landing · `/about` (live metrics) · `/partner` · `/contact` · `/signin` |
-| School / workplace | `/app` dashboard · `/app/learn` · `/app/play` · `/app/book` · `/app/bookings` |
+| Public | `/` landing · `/about` (live metrics + grounds carousel) · `/partner` · `/contact` · `/signin` · `/signup` |
+| Teacher / corporate | `/app` dashboard · `/app/hub` Education Hub · `/app/learn` (paid courses) · `/app/cart` · `/app/play` · `/app/book` · `/app/bookings` |
 | CoffeeBot staff | `/staff` overview · `/staff/plan` · `/staff/partners` · `/staff/impact` |
 
 ### Key IA decisions (vs the prototype)
@@ -63,7 +64,27 @@ src/
   pages/public|org|staff/
 ```
 
+## Accounts and routing
+There is no backend yet. Organisations and accounts are seeded in `src/data/orgs.js` and
+kept in the browser's localStorage (`coffeebot-auth-v1`); passwords are salted and hashed
+but this is **not** real security — move accounts and the role check to a server before launch.
+
+- Organisation type decides the role: `staff` → `/staff`, `school` → teacher, `company` → corporate (both `/app`).
+- Sign-up creates an account instantly. A registered email domain joins that organisation; a new
+  domain registers a new one (education domains become schools, the rest companies).
+- Staff accounts cannot be self-created, and personal email domains are refused.
+- Passwords need 8+ characters, a number and a special character.
+- Company contact details live in `src/data/company.js`.
+
+## Paid courses and cart
+Courses (`/app/learn`) are paid and bought once per organisation. Add to Cart → `/app/cart` →
+Confirm order. **No payment provider is connected**: confirming records the order and unlocks the
+lesson plan and session booking for that course, and nothing is charged. Prices live in
+`src/data/pricing.js` and are **placeholders** — replace them and set `PRICES_ARE_PLACEHOLDERS`
+to `false`.
+
 ## Demo accounts
+Opened from the buttons on the log-in page (no password):
 - Teacher — `aisha.rahman@greenridge.edu.sg`
 - Workplace — `daniel.tan@hartwell.com.sg`
 - CoffeeBot staff — `meiling@coffeebot.com`

@@ -1,0 +1,105 @@
+/* ============================================================
+   Grounds showcase (About page) — a product carousel with an
+   oversized word behind the product and a full-stage colour wipe
+   between slides.
+   ============================================================ */
+.show {
+  position: relative; isolation: isolate; overflow: hidden;
+  height: clamp(440px, 58vw, 620px); border-radius: var(--r-xl);
+  color: var(--ink);
+}
+.show-stage { position: absolute; inset: 0; touch-action: pan-y; }
+.show-slide { position: absolute; inset: 0; overflow: hidden; will-change: clip-path; }
+
+.show-word {
+  position: absolute; inset: 0; display: grid; place-items: center; z-index: 1;
+  font-family: var(--display); font-weight: 900; color: #fff; white-space: nowrap; user-select: none;
+  font-size: clamp(72px, 19vw, 230px); letter-spacing: .02em; line-height: 1;
+}
+.show-product {
+  position: absolute; z-index: 3; left: 50%; top: 50%; width: clamp(130px, 19vw, 210px);
+  margin: calc(clamp(130px, 19vw, 210px) * -0.7) 0 0 calc(clamp(130px, 19vw, 210px) * -0.5);
+  filter: drop-shadow(0 24px 20px rgba(43,29,20,.25));
+}
+.show-bean { position: absolute; z-index: 2; pointer-events: none; }
+.show-bean.blur { z-index: 4; filter: blur(4px); }
+.show-bean > span { display: block; transform: rotate(var(--r)); animation: showfloat 5s ease-in-out infinite alternate; animation-delay: var(--d); }
+.show-bean svg { display: block; width: 100%; height: auto; }
+@keyframes showfloat {
+  from { transform: translateY(-8px) rotate(var(--r)); }
+  to   { transform: translateY(10px) rotate(calc(var(--r) + 8deg)); }
+}
+
+/* product tabs along the top */
+.show-tabs { position: absolute; z-index: 6; top: var(--s4); left: 0; right: 0; display: flex; justify-content: center; gap: clamp(6px, 2.4vw, 30px); padding: 0 var(--s3); flex-wrap: wrap; }
+.show-tabs button {
+  position: relative; font: inherit; font-weight: 700; font-size: var(--t-sm); color: var(--ink); background: none; border: 0; cursor: pointer;
+  padding: 6px 4px; border-bottom: 2px solid transparent; opacity: .7; transition: opacity var(--dur-fast), border-color var(--dur-fast);
+}
+.show-tabs button:hover { opacity: 1; }
+/* fills under the active tab while its product is on screen */
+.show-progress { position: absolute; left: 0; bottom: -2px; height: 2px; width: 100%; background: var(--ink); transform-origin: left; animation: showprogress linear both; }
+.show-tabs button[aria-selected="true"]:has(.show-progress) { border-bottom-color: color-mix(in srgb, var(--ink) 25%, transparent); }
+@keyframes showprogress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .show-progress { display: none; } }
+
+.show-toggle {
+  position: absolute; z-index: 6; top: var(--s3); right: var(--s3); width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid var(--ink); background: color-mix(in srgb, #fff 80%, transparent); color: var(--ink); cursor: pointer; display: grid; place-items: center;
+}
+.show-toggle:hover { background: #fff; }
+.show-tabs button[aria-selected="true"] { opacity: 1; border-bottom-color: var(--ink); }
+
+.show-caption {
+  position: absolute; z-index: 6; left: 50%; bottom: var(--s4); transform: translateX(-50%);
+  width: min(460px, calc(100% - 140px)); text-align: center;
+}
+.show-caption > div {
+  display: flex; flex-direction: column; gap: 2px;
+  background: color-mix(in srgb, #fff 82%, transparent); border-radius: var(--r-md); padding: 10px 16px;
+}
+.show-caption b { font-family: var(--display); font-weight: 900; font-size: var(--t-base); }
+.show-caption span { font-size: var(--t-sm); color: var(--ink-2); }
+
+.show-arrow {
+  position: absolute; z-index: 6; bottom: var(--s4); width: 46px; height: 46px; border-radius: 50%;
+  border: 2px solid var(--ink); background: #fff; color: var(--ink); font-size: 20px; font-weight: 700; cursor: pointer;
+  display: grid; place-items: center; box-shadow: var(--sh-hard);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.show-arrow:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+.show-arrow:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.show-arrow.prev { left: var(--s4); }
+.show-arrow.next { right: var(--s4); background: var(--ink); color: #fff; }
+
+@media (max-width: 620px) {
+  .show { height: 540px; border-radius: var(--r-lg); }
+  /* a light backing keeps the tab labels readable over the floating beans */
+  .show-tabs { top: 56px; left: var(--s3); right: var(--s3); padding: 2px var(--s2); gap: 4px 14px; background: color-mix(in srgb, #fff 78%, transparent); border-radius: var(--r-md); }
+  .show-product { top: 44%; }
+  .show-word { align-items: center; padding-bottom: 12%; }
+  .show-caption { width: calc(100% - 32px); bottom: 74px; }
+  .show-arrow { bottom: var(--s3); }
+}
+
+/* brew → collect → sort → reuse strip above the carousel */
+.reuse-steps { list-style: none; margin: 0 0 var(--s5); padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s3); counter-reset: step; }
+.reuse-steps li {
+  position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s4);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.reuse-steps li::before {
+  counter-increment: step; content: counter(step);
+  width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center;
+  font-family: var(--display); font-weight: 900; font-size: var(--t-sm); margin-bottom: 4px;
+}
+.reuse-steps li:not(:last-child)::after {
+  content: '→'; position: absolute; right: calc(var(--s3) * -1 + -4px); top: 22px; z-index: 1; font-weight: 700; color: var(--brew);
+}
+.reuse-steps b { font-family: var(--display); }
+.reuse-steps span { font-size: var(--t-sm); color: var(--muted); }
+@media (max-width: 860px) {
+  .reuse-steps { grid-template-columns: 1fr 1fr; }
+  .reuse-steps li::after { display: none; }
+}
+@media (max-width: 480px) { .reuse-steps { grid-template-columns: 1fr; } }

@@ -46,3 +46,18 @@
 .demo-btn > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .demo-btn .demo-arrow { display: flex; align-items: center; justify-content: center; color: var(--muted); flex: 0 0 auto; }
 .signin-note { font-size: var(--t-xs); color: var(--muted); text-align: center; }
+.signin-note a, .signin-card .msg a { color: var(--ink); font-weight: 700; }
+.signin-card input[type=password] {
+  font: inherit; width: 100%; padding: 10px 12px;
+  border-radius: var(--r-sm); border: 1px solid var(--line);
+  background: #fff; color: var(--ink);
+}
+.signin-org {
+  display: flex; align-items: center; gap: var(--s2); font-size: var(--t-sm);
+  background: var(--leaf-soft); color: var(--ink); border-radius: var(--r-sm); padding: 10px 12px;
+}
+.signin-org svg { color: var(--leaf); flex: 0 0 auto; }
+.pw-rules { list-style: none; margin: var(--s2) 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: var(--t-xs); color: var(--muted); }
+.pw-rules li { display: flex; align-items: center; gap: 6px; }
+.pw-rules li.ok { color: var(--leaf); font-weight: 600; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -40,7 +40,7 @@ export default function Dashboard() {
   return (
     <Page>
       <div className="pagehead">
-        <span className="eyebrow">Education partner · {user.org}</span>
+        <span className="eyebrow">{user.role === 'teacher' ? 'Teacher dashboard' : 'Corporate dashboard'} · {user.org}</span>
         <h1>Welcome back, {user.name}</h1>
         <p>Everything your group does here — booking activities, running quizzes, logging missions — feeds CoffeeBot's live impact figures.</p>
       </div>
@@ -73,7 +73,7 @@ export default function Dashboard() {
           <h2>Your education reuse record</h2>
           <button className="btn ghost sm" disabled={!mine.length} onClick={exportRecord}>Download CSV</button>
         </div>
-        <p className="small muted">Every session your group has booked, with the participants and grounds behind it. Use it for your school's sustainability or CCA reporting.</p>
+        <p className="small muted">Every session your group has booked, with the participants and grounds behind it. {user.role === 'teacher' ? "Use it for your school's sustainability or CCA reporting." : "Use it for your organisation's sustainability reporting."}</p>
         {mine.length ? (
           <div className="scroll">
             <table style={{ minWidth: 560 }}>
@@ -107,10 +107,10 @@ export default function Dashboard() {
 
         <motion.div {...reveal} className="panel">
           <h2>Keep learning</h2>
-          <p className="muted small">Free for your group, any time — and each one adds to CoffeeBot's reach.</p>
+          <p className="muted small">{user.role === 'teacher' ? 'Sustainability, the circular economy and the life of a coffee bean, with classroom resources.' : 'Sustainability, the circular economy and the life of a coffee bean, with workplace scenarios.'}</p>
           <div className="row wrap">
-            <Link className="btn ghost" to="/app/play">Play a quiz</Link>
-            <Link className="btn ghost" to="/app/play">Assign a home mission</Link>
+            <Link className="btn" to="/app/hub">Open the Education Hub</Link>
+            <Link className="btn ghost" to="/app/play">Quizzes &amp; missions</Link>
             <Link className="btn ghost" to="/app/learn">Browse courses</Link>
           </div>
         </motion.div>
