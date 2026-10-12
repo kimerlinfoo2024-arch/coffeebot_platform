@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Page from '../../components/ui/Page';
@@ -6,6 +6,8 @@ import Icon from '../../components/ui/Icon';
 import { useStore } from '../../store/useStore';
 import { AUDIENCE, SUSTAINABILITY, CIRCULAR, LIFECYCLE, TEACHER, CORPORATE } from '../../data/education';
 import { downloadFile } from '../../lib/download';
+import { Svg } from '../../data/art';
+import { HUB_HERO, PILLAR_ART, MODEL_ART, STAGE_ART, CLASSROOM, OFFICE } from '../../data/hubArt';
 import './hub.css';
 
 const fade = {
@@ -13,46 +15,74 @@ const fade = {
   transition: { duration: 0.28, ease: [0.22, 0.61, 0.36, 1] },
 };
 
-function ApplyList({ title, items }) {
+/* ---- shared building blocks: every topic uses the same skeleton ---- */
+
+function TopicIntro({ eyebrow, lead, detail }) {
+  return (
+    <header className="hub-intro">
+      <span className="eyebrow">{eyebrow}</span>
+      <h2 className="hub-lead">{lead}</h2>
+      {detail && <p className="muted">{detail}</p>}
+    </header>
+  );
+}
+
+function Section({ title, note, action, children }) {
+  return (
+    <section className="hub-sec">
+      <div className="hub-sec-head">
+        <div>
+          <h2>{title}</h2>
+          {note && <p className="small muted">{note}</p>}
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Checklist({ items }) {
   return (
     <div className="panel hub-apply">
-      <h2>{title}</h2>
       <ul>{items.map((t) => <li key={t}><Icon name="check" size={16} strokeWidth={3} /><span>{t}</span></li>)}</ul>
     </div>
   );
 }
 
+const InfoCards = ({ items, cols = 3 }) => (
+  <div className={`grid${cols} hub-cards`}>
+    {items.map(([h, t]) => <div key={h} className="card"><h3>{h}</h3><p className="small muted">{t}</p></div>)}
+  </div>
+);
+
 function Sustainability({ role }) {
   const S = SUSTAINABILITY;
   return (
-    <div className="stack">
-      <div className="hub-def">
-        <span className="eyebrow">What it means</span>
-        <p className="hub-lead">{S.definition}</p>
-        <p className="muted">{S.detail}</p>
-      </div>
+    <>
+      <TopicIntro eyebrow="Topic 1 · Sustainability" lead={S.definition} detail={S.detail} />
 
-      <h2>The three dimensions</h2>
-      <div className="grid3">
-        {S.pillars.map((p) => (
-          <div key={p.k} className={`card hub-pillar acc-${p.accent}`}>
-            <span className="hub-ico"><Icon name={p.icon} size={26} /></span>
-            <h3>{p.name}</h3>
-            <p className="small">{p.what}</p>
-            <p className="small hub-coffee"><b>In a cup of coffee:</b> {p.coffee}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="panel">
-        <h2>Why it matters, every day</h2>
-        <div className="grid3">
-          {S.why.map(([h, t]) => <div key={h} className="card soft"><h3>{h}</h3><p className="small muted">{t}</p></div>)}
+      <Section title="The three dimensions" note="A choice is only sustainable when it works for all three.">
+        <div className="grid3 hub-cards">
+          {S.pillars.map((p) => (
+            <div key={p.k} className={`card hub-pillar acc-${p.accent}`}>
+              <Svg markup={PILLAR_ART[p.k]} className="hub-art" />
+              <h3>{p.name}</h3>
+              <p className="small">{p.what}</p>
+              <p className="small hub-coffee"><b>In a cup of coffee:</b> {p.coffee}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </Section>
 
-      <ApplyList title={role === 'teacher' ? 'Bringing it into the classroom' : 'Applying it at work'} items={S.apply[role]} />
-    </div>
+      <Section title="Why it matters, every day">
+        <InfoCards items={S.why} />
+      </Section>
+
+      <Section title={role === 'teacher' ? 'Bringing it into the classroom' : 'Applying it at work'}>
+        <Checklist items={S.apply[role]} />
+      </Section>
+    </>
   );
 }
 
@@ -61,63 +91,61 @@ function Circular({ role }) {
   const [model, setModel] = useState('linear');
   const m = C.models[model];
   return (
-    <div className="stack">
-      <div className="hub-def">
-        <span className="eyebrow">What it means</span>
-        <p className="hub-lead">{C.definition}</p>
-      </div>
+    <>
+      <TopicIntro eyebrow="Topic 2 · Circular economy" lead={C.definition} />
 
-      <div className="panel">
-        <div className="panel-head">
-          <h2>Linear or circular?</h2>
+      <Section title="Linear or circular?" note="Switch between the two to compare."
+        action={(
           <div className="subnav" role="tablist" aria-label="Economy model" style={{ margin: 0 }}>
             {Object.entries(C.models).map(([k, v]) => (
               <button key={k} role="tab" aria-selected={model === k} onClick={() => setModel(k)}>{v.label}</button>
             ))}
           </div>
+        )}>
+        <div className="panel">
+          <AnimatePresence mode="wait">
+            <motion.div key={model} {...fade} className="stack" style={{ gap: 'var(--s3)' }}>
+              <Svg markup={MODEL_ART[model]} className="hub-art" />
+              <ol className={`flow ${model}`} aria-label={`${m.label} model: ${m.steps.join(', then ')}${model === 'circular' ? ', then back to the start' : ''}`}>
+                {m.steps.map((st, i) => (
+                  <motion.li key={st} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.08 * i, duration: 0.25 }}>
+                    {st}
+                  </motion.li>
+                ))}
+              </ol>
+              {model === 'circular' && <div className="flow-return" aria-hidden="true"><span>back into use</span></div>}
+              <p>{m.text}</p>
+              <p className="small hub-coffee"><b>With coffee:</b> {m.coffee}</p>
+            </motion.div>
+          </AnimatePresence>
         </div>
-        <AnimatePresence mode="wait">
-          <motion.div key={model} {...fade} className="stack" style={{ gap: 'var(--s3)' }}>
-            <ol className={`flow ${model}`} aria-label={`${m.label} model: ${m.steps.join(', then ')}${model === 'circular' ? ', then back to the start' : ''}`}>
-              {m.steps.map((s, i) => (
-                <motion.li key={s} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.08 * i, duration: 0.25 }}>
-                  {s}
-                </motion.li>
-              ))}
-            </ol>
-            {model === 'circular' && <div className="flow-return" aria-hidden="true"><span>back into use</span></div>}
-            <p>{m.text}</p>
-            <p className="small hub-coffee"><b>With coffee:</b> {m.coffee}</p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      </Section>
 
-      <h2>Four principles</h2>
-      <div className="grid2 hub-principles">
-        {C.principles.map((p) => (
-          <div key={p.name} className="card">
-            <div className="row"><span className="hub-ico sm"><Icon name={p.icon} size={20} /></span><h3>{p.name}</h3></div>
-            <p className="small">{p.text}</p>
-            <p className="small hub-coffee"><b>With coffee:</b> {p.coffee}</p>
+      <Section title="Four principles">
+        <div className="grid2 hub-cards">
+          {C.principles.map((p) => (
+            <div key={p.name} className="card">
+              <div className="row"><span className="hub-ico sm"><Icon name={p.icon} size={20} /></span><h3>{p.name}</h3></div>
+              <p className="small">{p.text}</p>
+              <p className="small hub-coffee"><b>With coffee:</b> {p.coffee}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="What used coffee grounds can become">
+        <div className="panel">
+          <div className="list">
+            {C.grounds.map(([h, t]) => <div key={h} className="hub-row"><b>{h}</b><span className="small muted">{t}</span></div>)}
           </div>
-        ))}
-      </div>
-
-      <div className="panel">
-        <h2>What used coffee grounds can become</h2>
-        <div className="list">
-          {C.grounds.map(([h, t]) => <div key={h} className="hub-row"><b>{h}</b><span className="small muted">{t}</span></div>)}
+          <p className="small hub-note">{C.groundsNote}</p>
         </div>
-        <p className="small hub-note">{C.groundsNote}</p>
-      </div>
+      </Section>
 
-      <div className="panel">
-        <h2>{role === 'teacher' ? 'Where students can see it' : 'Where it applies in a business'}</h2>
-        <div className="grid3">
-          {C.apply[role].map(([h, t]) => <div key={h} className="card soft"><h3>{h}</h3><p className="small muted">{t}</p></div>)}
-        </div>
-      </div>
-    </div>
+      <Section title={role === 'teacher' ? 'Where students can see it' : 'Where it applies in a business'}>
+        <InfoCards items={C.apply[role]} />
+      </Section>
+    </>
   );
 }
 
@@ -126,11 +154,10 @@ function Lifecycle() {
   const s = LIFECYCLE[i];
   const last = LIFECYCLE.length - 1;
   return (
-    <div className="stack">
-      <div className="hub-def">
-        <span className="eyebrow">From farm to cup, and after</span>
-        <p className="hub-lead">A coffee bean passes through seven stages. Pick a stage to see what it uses, where waste appears and how the loop could close.</p>
-      </div>
+    <>
+      <TopicIntro eyebrow="Topic 3 · Life of a coffee bean"
+        lead="A coffee bean passes through seven stages, from the farm to your cup and beyond."
+        detail="Pick a stage to see what it uses, where waste appears and how the loop could close." />
 
       <div className="panel">
         <ol className="journey-steps">
@@ -146,10 +173,13 @@ function Lifecycle() {
 
         <AnimatePresence mode="wait">
           <motion.div key={i} {...fade} className="stage">
-            <div>
-              <span className="eyebrow">Stage {i + 1} of {LIFECYCLE.length}</span>
-              <h2 className="stage-title">{s.name}</h2>
-              <p>{s.what}</p>
+            <div className="stage-head">
+              <div>
+                <span className="eyebrow">Stage {i + 1} of {LIFECYCLE.length}</span>
+                <h2 className="stage-title">{s.name}</h2>
+                <p>{s.what}</p>
+              </div>
+              <Svg markup={STAGE_ART[i]} className="hub-art" />
             </div>
             <div className="stage-grid">
               <div className="card soft">
@@ -164,11 +194,11 @@ function Lifecycle() {
         </AnimatePresence>
 
         <div className="spread">
-          <button className="btn ghost sm" disabled={i === 0} onClick={() => setI(i - 1)}>← Previous</button>
+          <button className="btn ghost sm" disabled={i === 0} onClick={() => setI(i - 1)}>← Previous stage</button>
           <button className="btn sm" disabled={i === last} onClick={() => setI(i + 1)}>Next stage →</button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -187,29 +217,31 @@ function teacherSheet() {
 function ForTeachers() {
   const [open, setOpen] = useState(null);
   return (
-    <div className="stack">
-      <div className="panel">
-        <div className="panel-head">
-          <h2>Short classroom activities</h2>
+    <>
+      <TopicIntro eyebrow="For your classroom"
+        lead="Ready-to-run activities and questions for a lesson on coffee and waste."
+        detail="Use them after any of the three topics, or on their own." />
+      <Svg markup={CLASSROOM} className="hub-art hub-banner" />
+
+      <Section title="Short classroom activities"
+        action={(
           <button className="btn ghost sm" onClick={() => downloadFile('coffeebot-discussion-sheet.txt', teacherSheet(), 'text/plain;charset=utf-8')}>
             Download discussion sheet
           </button>
-        </div>
-        <div className="grid3">
+        )}>
+        <div className="grid3 hub-cards">
           {TEACHER.activities.map((a) => (
-            <div key={a.title} className="card soft">
+            <div key={a.title} className="card">
               <div className="row wrap" style={{ gap: 6 }}><span className="tag t-gen">{a.level}</span><span className="tag t-gen">{a.mins} min</span></div>
               <h3>{a.title}</h3>
               <p className="small muted">{a.text}</p>
             </div>
           ))}
         </div>
-      </div>
+      </Section>
 
-      <div className="panel">
-        <h2>Discussion questions</h2>
-        <p className="small muted">Open a question to see a note on where to steer the conversation.</p>
-        <div className="qa">
+      <Section title="Discussion questions" note="Open a question to see a note on where to steer the conversation.">
+        <div className="panel qa">
           {TEACHER.questions.map(([q, note], i) => (
             <div key={q} className="qa-item">
               <button aria-expanded={open === i} aria-controls={`qa-${i}`} onClick={() => setOpen(open === i ? null : i)}>
@@ -219,17 +251,26 @@ function ForTeachers() {
             </div>
           ))}
         </div>
-      </div>
+      </Section>
 
-      <ApplyList title="Helping students understand" items={TEACHER.tips} />
+      <Section title="Helping students understand">
+        <Checklist items={TEACHER.tips} />
+      </Section>
 
-      <div className="panel hub-next">
-        <h2>Take it further</h2>
-        <p className="muted small">Hands-on courses come with a lesson plan and the grounds to run them. Quizzes work well as a starter or a recap.</p>
-        <div className="row wrap">
-          <Link className="btn" to="/app/learn">Browse hands-on courses</Link>
-          <Link className="btn ghost" to="/app/play">Open quizzes &amp; missions</Link>
-        </div>
+      <TakeItFurther text="Hands-on courses come with a lesson plan and the grounds to run them. Quizzes work well as a starter or a recap."
+        primary={['/app/learn', 'Browse hands-on courses']} />
+    </>
+  );
+}
+
+function TakeItFurther({ text, primary }) {
+  return (
+    <div className="panel hub-next">
+      <h2>Take it further</h2>
+      <p className="muted small">{text}</p>
+      <div className="row wrap">
+        <Link className="btn" to={primary[0]}>{primary[1]}</Link>
+        <Link className="btn ghost" to="/app/play">Open quizzes &amp; missions</Link>
       </div>
     </div>
   );
@@ -257,44 +298,52 @@ function Scenario({ s }) {
 
 function ForCorporate() {
   return (
-    <div className="stack">
-      <div className="panel">
-        <h2>Workplace sustainability practices</h2>
-        <div className="grid2">
-          {CORPORATE.practices.map(([h, t]) => <div key={h} className="card soft"><h3>{h}</h3><p className="small muted">{t}</p></div>)}
-        </div>
-      </div>
+    <>
+      <TopicIntro eyebrow="For your workplace"
+        lead="Practical steps for a more sustainable workplace, starting at the pantry."
+        detail="Try the scenarios with your team, then pick a first step." />
+      <Svg markup={OFFICE} className="hub-art hub-banner" />
 
-      <div>
-        <h2 style={{ marginBottom: 'var(--s2)' }}>Workplace scenarios</h2>
-        <p className="small muted" style={{ marginBottom: 'var(--s3)' }}>Illustrative situations, not real companies. Choose what you would do.</p>
-        <div className="grid3">{CORPORATE.scenarios.map((s) => <Scenario key={s.title} s={s} />)}</div>
-      </div>
+      <Section title="Workplace sustainability practices">
+        <InfoCards items={CORPORATE.practices} cols={2} />
+      </Section>
 
-      <ApplyList title="A first month, step by step" items={CORPORATE.actions} />
+      <Section title="Workplace scenarios" note="Illustrative situations, not real companies. Choose what you would do.">
+        <div className="grid3 hub-cards">{CORPORATE.scenarios.map((sc) => <Scenario key={sc.title} s={sc} />)}</div>
+      </Section>
 
-      <div className="panel hub-next">
-        <h2>Take it further</h2>
-        <p className="muted small">Book a hands-on session for your team, or run a quiz at your next meeting.</p>
-        <div className="row wrap">
-          <Link className="btn" to="/app/learn">Browse team activities</Link>
-          <Link className="btn ghost" to="/app/play">Open quizzes &amp; missions</Link>
-        </div>
-      </div>
-    </div>
+      <Section title="A first month, step by step">
+        <Checklist items={CORPORATE.actions} />
+      </Section>
+
+      <TakeItFurther text="Book a hands-on session for your team, or run a quiz at your next meeting."
+        primary={['/app/learn', 'Browse team activities']} />
+    </>
   );
 }
 
 export default function EducationHub() {
   const role = useStore((s) => s.user.role);
   const A = AUDIENCE[role];
-  const [tab, setTab] = useState('sus');
+  const [tab, setTab] = useState(0);
+  const tabsRef = useRef(null);
   const TABS = [
-    ['sus', 'Sustainability'],
-    ['circ', 'Circular economy'],
-    ['life', 'Life of a coffee bean'],
-    ['you', A.tab],
+    ['Sustainability', 'What it means'],
+    ['Circular economy', 'Linear vs circular'],
+    ['Life of a coffee bean', 'Seven stages'],
+    [A.tab, role === 'teacher' ? 'Activities & questions' : 'Practices & scenarios'],
   ];
+  const TOPICS = [
+    <Sustainability role={role} />,
+    <Circular role={role} />,
+    <Lifecycle />,
+    role === 'teacher' ? <ForTeachers /> : <ForCorporate />,
+  ];
+
+  const go = (i) => {
+    setTab(i);
+    tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <Page>
@@ -304,18 +353,32 @@ export default function EducationHub() {
         <p>{A.intro}</p>
       </div>
 
-      <div className="subnav" role="tablist" aria-label="Education Hub topics">
-        {TABS.map(([k, label]) => (
-          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{label}</button>
+      <Svg markup={HUB_HERO} className="hub-art hub-banner hub-hero" />
+
+      <div className="hub-tabs" role="tablist" aria-label="Education Hub topics" ref={tabsRef}>
+        {TABS.map(([label, sub], i) => (
+          <button key={label} role="tab" aria-selected={tab === i} className="hub-tab" onClick={() => setTab(i)}>
+            <span className="n">{i < 3 ? i + 1 : <Icon name={role === 'teacher' ? 'book' : 'users'} size={15} />}</span>
+            <span><b>{label}</b><small>{sub}</small></span>
+          </button>
         ))}
       </div>
 
       <AnimatePresence mode="wait">
-        <motion.div key={tab} {...fade}>
-          {tab === 'sus' && <Sustainability role={role} />}
-          {tab === 'circ' && <Circular role={role} />}
-          {tab === 'life' && <Lifecycle />}
-          {tab === 'you' && (role === 'teacher' ? <ForTeachers /> : <ForCorporate />)}
+        <motion.div key={tab} {...fade} className="hub-topic">
+          {TOPICS[tab]}
+
+          <nav className="hub-foot" aria-label="Topic navigation">
+            {tab > 0 ? (
+              <button className="btn ghost sm" onClick={() => go(tab - 1)}>← {TABS[tab - 1][0]}</button>
+            ) : <span />}
+            {tab < TABS.length - 1 && (
+              <button className="hub-upnext" onClick={() => go(tab + 1)}>
+                <small>Up next</small>
+                <b>{TABS[tab + 1][0]} →</b>
+              </button>
+            )}
+          </nav>
         </motion.div>
       </AnimatePresence>
     </Page>

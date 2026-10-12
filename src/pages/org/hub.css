@@ -5,8 +5,47 @@
 .acc-amber { --acc: var(--amber); --acc-soft: var(--amber-soft); }
 .acc-leaf  { --acc: var(--leaf);  --acc-soft: var(--leaf-soft); }
 
-.hub-def { display: flex; flex-direction: column; gap: var(--s2); max-width: 72ch; }
 .hub-lead { font-family: var(--display); font-weight: 700; font-size: clamp(19px, 2.4vw, 26px); line-height: 1.25; text-wrap: balance; }
+
+/* topic menu */
+.hub-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); margin-bottom: var(--s6); scroll-margin-top: 90px; }
+.hub-tab {
+  font: inherit; text-align: left; color: var(--ink); cursor: pointer;
+  display: flex; align-items: center; gap: var(--s3); padding: 12px 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+  transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast) var(--ease);
+}
+.hub-tab:hover { border-color: var(--brew); transform: translateY(-1px); }
+.hub-tab .n {
+  flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--bg-soft); color: var(--brew); font-family: var(--display); font-weight: 900; font-size: 14px;
+}
+.hub-tab b { display: block; font-size: var(--t-sm); line-height: 1.25; }
+.hub-tab small { display: block; font-size: var(--t-xs); color: var(--muted); }
+.hub-tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.hub-tab[aria-selected="true"] .n { background: rgba(255, 255, 255, .14); color: #fff; }
+.hub-tab[aria-selected="true"] small { color: rgba(255, 255, 255, .7); }
+@media (max-width: 860px) { .hub-tabs { grid-template-columns: 1fr 1fr; } }
+
+/* one skeleton for every topic: intro → sections → up next */
+.hub-topic { display: flex; flex-direction: column; gap: var(--s7); }
+.hub-intro { display: flex; flex-direction: column; gap: var(--s2); max-width: 72ch; }
+.hub-sec { display: flex; flex-direction: column; gap: var(--s3); }
+.hub-sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s3); flex-wrap: wrap; }
+.hub-sec-head p { margin-top: 2px; }
+.hub-cards { align-items: stretch; }
+.hub-cards > .card h3 + p { margin-top: -2px; }
+
+.hub-foot { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding-top: var(--s5); border-top: 1px solid var(--line); }
+.hub-upnext {
+  font: inherit; color: var(--ink); cursor: pointer; text-align: right; margin-left: auto;
+  display: flex; flex-direction: column; gap: 2px; padding: 12px 18px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+  transition: border-color var(--dur-fast), transform var(--dur-fast) var(--ease);
+}
+.hub-upnext:hover { border-color: var(--brew); transform: translateY(-1px); }
+.hub-upnext small { font-size: var(--t-xs); color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+.hub-upnext b { font-family: var(--display); font-size: var(--t-lg); }
 
 .hub-ico {
   width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto;
@@ -81,7 +120,7 @@
 .card.stage-loop { background: var(--leaf-soft); border-color: color-mix(in srgb, var(--leaf) 40%, var(--line)); }
 
 /* teacher Q&A */
-.qa { display: flex; flex-direction: column; }
+.panel.qa { display: flex; flex-direction: column; gap: 0; padding-top: var(--s2); padding-bottom: var(--s2); }
 .qa-item { border-bottom: 1px dashed var(--line); padding: 4px 0; }
 .qa-item:last-child { border-bottom: 0; }
 .qa-item button {
@@ -94,3 +133,10 @@
 /* corporate scenarios */
 .scenario { gap: var(--s3); }
 .scenario-why { margin-top: 6px; padding: 0 2px; color: var(--ink-2); }
+
+/* illustrations */
+.hub-art > svg { border-radius: var(--r-md); }
+.hub-hero { margin-bottom: var(--s5); }
+.hub-banner > svg { box-shadow: var(--sh-sm); }
+.stage-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 340px); gap: var(--s5); align-items: center; }
+@media (max-width: 760px) { .stage-head { grid-template-columns: 1fr; } .stage-head .hub-art { order: -1; } }

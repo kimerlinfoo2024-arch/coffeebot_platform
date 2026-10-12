@@ -1,0 +1,36 @@
+/* Learner dashboard — section rhythm, equal-height panel rows, tidy footers */
+.pagehead.db-head { flex-direction: row; justify-content: space-between; align-items: flex-end; gap: var(--s4); flex-wrap: wrap; }
+.db-head-text { gap: var(--s2); min-width: 0; flex: 1 1 420px; }
+.db-head > .btn { align-self: flex-end; }
+
+.stack.db { gap: var(--s6); }
+.db-sec-head { margin-bottom: var(--s3); align-items: center; }
+.grid2.db-row { align-items: stretch; }
+
+.db-foot { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-top: auto; padding-top: var(--s3); border-top: 1px dashed var(--line); font-size: var(--t-sm); color: var(--muted); }
+.db-foot b { color: var(--ink); }
+
+/* next session */
+.db-next { display: flex; gap: var(--s4); align-items: center; padding: var(--s4); background: var(--bg-soft); border-radius: var(--r-sm); }
+.db-date { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 76px; padding: var(--s2); border-radius: var(--r-sm); background: var(--card); border: 1px solid var(--line); text-align: center; }
+.db-date .xs { color: var(--muted); }
+.db-date b { font-family: var(--display); font-weight: 900; font-size: var(--t-lg); line-height: 1.1; }
+.db-next-body { gap: var(--s1); min-width: 0; flex: 1; }
+
+/* learning links */
+.db-links { display: flex; flex-direction: column; }
+.db-link { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s2); margin: 0 calc(-1 * var(--s2)); border-radius: var(--r-sm); text-decoration: none; border-bottom: 1px dashed var(--line); transition: background var(--dur-fast); }
+.db-link:last-child { border-bottom: 0; }
+.db-link:hover { background: var(--bg-soft); }
+.db-link-icon { flex: 0 0 auto; display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--teal-soft); color: var(--teal); }
+.db-link-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.db-link-arrow { color: var(--muted); transition: transform var(--dur-fast) var(--ease), color var(--dur-fast); }
+.db-link:hover .db-link-arrow { transform: translateX(3px); color: var(--ink); }
+
+/* engagement ring */
+.db-ring { display: flex; align-items: center; gap: var(--s5); flex-wrap: wrap; }
+.db-ring p { flex: 1 1 160px; }
+
+/* reuse record */
+table.db-table { min-width: 560px; }
+.db-table tfoot td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--line); }
