@@ -196,9 +196,13 @@ export const useStore = create(persist((set, get) => ({
 
   cancelBooking(id) {
     const b = get().bookings.find((x) => x.id === id);
-    if (!b) return;
+    if (!b || b.outcome) return; // a completed session is a record, not a plan
     set((s) => ({
       bookings: s.bookings.filter((x) => x.id !== id),
+      // a batch dispatched to this booking goes back to staff as unassigned grounds
+      batches: s.batches.map((x) => (x.bookingId === id
+        ? { ...x, bookingId: undefined, status: 'Collected', use: 'Unassigned', notes: `${x.notes ? x.notes + ' · ' : ''}Booking #${id} cancelled` }
+        : x)),
       reach: { ...s.reach, people: Math.max(0, s.reach.people - b.people) },
     }));
     get().showToast('Booking cancelled. The drying plan has freed up that capacity.');
@@ -265,6 +269,62 @@ export const useStore = create(persist((set, get) => ({
       nextId: nextId + 1,
     }));
     get().showToast(`Batch #${nextId} logged.`);
+  },
+
+  /** staff: send a batch to a booking (batch → Dispatched, destination = that session) */
+  dispatchBatch(batchId, bookingId) {
+    const { batches, bookings } = get();
+    const batch = batches.find((b) => b.id === batchId);
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!batch || !booking || booking.outcome || !['Collected', 'Drying', 'Dispatched'].includes(batch.status)) return;
+    set((s) => ({
+      batches: s.batches.map((b) => {
+        if (b.id === batchId) return { ...b, bookingId, status: 'Dispatched', use: 'Activity kits', partner: '', notes: `For ${booking.org} (${ACTS[booking.act].name.toLowerCase()})` };
+        // one batch per booking: release any other batch already sent there
+        if (b.bookingId === bookingId) return { ...b, bookingId: undefined, status: 'Collected', use: 'Unassigned' };
+        return b;
+      }),
+      bookings: s.bookings.map((b) => (b.id === bookingId ? { ...b, batchId } : b)),
+      feed: [`${batch.kg} kg dispatched to ${booking.org}`, ...s.feed],
+    }));
+    get().showToast(`Batch #${batchId} dispatched to ${booking.org}.`);
+  },
+
+  /** teacher: log what happened at a session. Evidence rules (see proposal, risks):
+      reuse is capped at the dispatched kg, a photo is required, and any unused grounds
+      come back as an explicit residual batch instead of counting as reused. */
+  logOutcome(bookingId, { people, kgUsed, photo, notes }) {
+    const { user, bookings, batches, nextId } = get();
+    const booking = bookings.find((b) => b.id === bookingId);
+    const batch = booking && batches.find((b) => b.id === booking.batchId);
+    if (!user || !booking || !batch || booking.org !== user.org || booking.outcome) return { ok: false, error: 'This session cannot be logged.' };
+    const dispatched = batch.kg;
+    const used = Math.round(Number(kgUsed) * 10) / 10;
+    const ppl = Math.round(Number(people));
+    if (!(used > 0)) return { ok: false, error: 'Enter how many kg of grounds you used.' };
+    if (used > dispatched) return { ok: false, error: `You can log at most ${dispatched} kg, the amount CoffeeBot sent.` };
+    if (!(ppl > 0)) return { ok: false, error: 'Enter how many people took part.' };
+    if (!photo) return { ok: false, error: 'Add a photo of the activity as evidence.' };
+    const residual = Math.round((dispatched - used) * 10) / 10;
+    const date = new Date().toISOString().slice(0, 10);
+    set((s) => ({
+      batches: [
+        ...s.batches.map((b) => (b.id === batch.id
+          ? { ...b, kg: used, status: 'Reused', notes: `Used by ${booking.org}: ${ppl} people${notes ? ' · ' + notes : ''}` }
+          : b)),
+        ...(residual > 0 ? [{ id: nextId, date, source: batch.source, kg: residual, partner: '', use: 'Unassigned', status: 'Collected',
+          notes: `Unused ${residual} kg from batch #${batch.id}, returned by ${booking.org}` }] : []),
+      ],
+      bookings: s.bookings.map((b) => (b.id === bookingId
+        ? { ...b, outcome: { date, people: ppl, kgUsed: used, dispatched, residual, photo, notes: notes || '' } }
+        : b)),
+      // the booking already counted its planned headcount; correct it to who actually came
+      reach: { ...s.reach, people: Math.max(0, s.reach.people + ppl - booking.people) },
+      feed: [`${booking.org} completed ${ACTS[booking.act].name.toLowerCase()}: ${ppl} people, ${used} kg reused`, ...s.feed],
+      nextId: residual > 0 ? nextId + 1 : nextId,
+    }));
+    get().showToast(`Logged. ${used} kg now counts as confirmed reuse${residual > 0 ? `, ${residual} kg returned as residual` : ''}.`);
+    return { ok: true };
   },
 
   /** patch a batch — status, use, partner or notes */

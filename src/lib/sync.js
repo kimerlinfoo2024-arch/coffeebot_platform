@@ -63,10 +63,18 @@ export function startSync(useStore) {
     }, DEBOUNCE_MS);
   };
 
-  // 1. local edits -> remote
+  // 1. local edits -> remote. Slices edited before the first load finishes are remembered so
+  //    the load cannot overwrite them with older remote data.
+  let loaded = false;
+  const editedEarly = new Set();
   const unsubStore = useStore.subscribe((state, prev) => {
     if (applyingRemote) return;
-    SHARED_KEYS.forEach((k) => { if (state[k] !== prev[k] && !same(state[k], prev[k])) queue(k, state[k]); });
+    SHARED_KEYS.forEach((k) => {
+      if (state[k] !== prev[k] && !same(state[k], prev[k])) {
+        if (!loaded) editedEarly.add(k);
+        queue(k, state[k]);
+      }
+    });
   });
 
   // 2. initial load: remote wins; an empty table is seeded from this browser
@@ -79,7 +87,8 @@ export function startSync(useStore) {
     }
     const have = new Set(data.map((r) => r.key));
     const missing = SHARED_KEYS.filter((k) => !have.has(k));
-    applyRemote(data);
+    applyRemote(data.filter((r) => !editedEarly.has(r.key)));
+    loaded = true;
     if (missing.length) {
       const s = useStore.getState();
       await push(missing.map((key) => ({ key, value: s[key], updated_at: new Date().toISOString() })));
