@@ -8,6 +8,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { SEED, ACTS, WEEKS, MISSIONS } from '../data/seed';
+import { SHARED_KEYS } from '../lib/sync';
 import { kgFor } from '../lib/calc';
 import { COURSE_PRICES } from '../data/pricing';
 import {
@@ -50,8 +51,9 @@ export const useStore = create(persist((set, get) => ({
   orgs: structuredClone(SEED_ORGS),
   accounts: structuredClone(SEED_ACCOUNTS),
 
-  // --- operational data ---
+  // --- operational data (shared between browsers when Supabase is configured, see lib/sync.js) ---
   ...structuredClone(SEED),
+  sync: { backend: 'local', status: 'local', lastSync: null, error: null },
 
   showToast(text) {
     set({ toast: { text, id: Date.now() } });
@@ -275,6 +277,13 @@ export const useStore = create(persist((set, get) => ({
     set((s) => ({ visibility: { ...s.visibility, [key]: on } }));
   },
 
+  /** staff: put every shared slice back to the seed data (demo reset) */
+  resetDemoData() {
+    const fresh = structuredClone(SEED);
+    set(Object.fromEntries(SHARED_KEYS.map((k) => [k, k in fresh ? fresh[k] : (k === 'purchases' ? {} : [])])));
+    get().showToast('Demo data reset to the seed figures.');
+  },
+
   /** contact / message into the staff inbox */
   addMessage({ topic, text }) {
     const { user } = get();
@@ -282,8 +291,12 @@ export const useStore = create(persist((set, get) => ({
   },
 }), {
   name: 'coffeebot-auth-v1',
-  // the session, accounts, organisations and course orders survive a refresh
-  partialize: (s) => ({ user: s.user, accounts: s.accounts, orgs: s.orgs, carts: s.carts, purchases: s.purchases, orders: s.orders }),
+  // the session, accounts, organisations, carts and every shared slice survive a refresh;
+  // with Supabase configured the shared slices are overwritten by the remote copy on load
+  partialize: (s) => ({
+    user: s.user, accounts: s.accounts, orgs: s.orgs, carts: s.carts,
+    ...Object.fromEntries(SHARED_KEYS.map((k) => [k, s[k]])),
+  }),
   // the session is always rebuilt from the account record, so editing the
   // stored `user` (e.g. its role) cannot switch dashboards
   merge: (saved, current) => {

@@ -4,6 +4,8 @@ import { COMPANY } from '../../data/company';
 
 export default function Footer() {
   const user = useStore((s) => s.user);
+  const sync = useStore((s) => s.sync);
+  const dataLabel = { live: 'Live · shared data', connecting: 'Connecting…', error: 'Sync error · this browser only', local: 'This browser only' }[sync.status] || sync.status;
   const office = COMPANY.offices[0];
 
   return (
@@ -30,7 +32,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="ftr-word" aria-hidden="true">coffeebot.</div>
-      <div className="ftr-legal">© {new Date().getFullYear()} {office.name}</div>
+      <div className="ftr-legal">© {new Date().getFullYear()} {office.name} · <span title={sync.error || `Data: ${sync.backend}`}>{dataLabel}</span></div>
     </footer>
   );
 }

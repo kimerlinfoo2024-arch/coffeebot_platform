@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
 import { VISIBILITY_ITEMS } from '../../data/seed';
-import { batchTotals, pathways, usageTotals, educationByOrg, capTotal, fmt } from '../../lib/calc';
+import { batchTotals, pathways, usageTotals, educationByOrg, capTotal, circularity, fmt } from '../../lib/calc';
+import CircularityFunnel from '../../components/ui/CircularityFunnel';
 import { toCSV, downloadFile, today, BATCH_COLS } from '../../lib/download';
 import './reports.css';
 
@@ -13,13 +14,14 @@ const reveal = {
 };
 
 export default function Reports() {
-  const { batches, usage, bookings, partners, reach, reusedYear, missionsCompleted, quizzesDone, visibility, setVisibility } = useStore((s) => s);
+  const { batches, usage, bookings, partners, reach, reusedYear, missionsCompleted, quizzesDone, visibility, setVisibility, resetDemoData, sync } = useStore((s) => s);
 
   const t = batchTotals(batches);
   const u = usageTotals(usage);
   const paths = pathways(batches).sort((a, b) => b.value - a.value);
   const edu = educationByOrg(bookings);
   const eduKg = edu.reduce((a, o) => a + o.kg, 0);
+  const c = circularity(batches, usage);
   const capturePct = u.kg ? Math.round((t.logged / u.kg) * 100) : 0;
   const period = `${usage[0]?.w ?? ''} – ${usage[usage.length - 1]?.w ?? ''} 2026`;
 
@@ -30,7 +32,10 @@ export default function Reports() {
     ['Capture rate (%)', capturePct],
     ['Confirmed reused (kg)', t.reused],
     ['Disposed (kg)', t.disposed],
-    ['Reuse rate (%)', t.reuseRate],
+    ['Circularity rate (%)', c.rate],
+    ['Unrecovered residual (kg)', fmt(c.residual)],
+    ['Dispatched (kg)', fmt(c.dispatched)],
+    ['Closed-batch reuse rate (%)', t.reuseRate],
     ['Grounds reused this year (kg)', reusedYear],
     ['People reached', reach.people],
     ['Family members reached', reach.families + missionsCompleted],
@@ -70,6 +75,12 @@ export default function Reports() {
             <div style={{ alignItems: 'center' }}>
               <span><b>Full report</b><br /><span className="small muted">The preview below, as a PDF (use Save as PDF)</span></span>
               <button className="btn sm" onClick={() => window.print()}>Print / PDF</button>
+            </div>
+            <div style={{ alignItems: 'center' }}>
+              <span><b>Demo data</b><br /><span className="small muted">
+                {sync.status === 'live' ? 'Shared live with every signed-in browser.' : 'Stored in this browser only.'} Reset puts batches, bookings, partners and reach back to the seed figures.
+              </span></span>
+              <button className="btn ghost sm" onClick={() => { if (window.confirm('Reset all demo data to the seed figures? This affects every connected browser.')) resetDemoData(); }}>Reset</button>
             </div>
           </div>
         </motion.div>
@@ -114,8 +125,13 @@ export default function Reports() {
         </section>
 
         <section>
-          <h3>2. Reuse and pathways</h3>
-          <p className="small muted">Reuse rate is reused kg as a share of batches that have closed (reused or disposed): <b>{t.reuseRate}%</b>. {fmt(t.inProgress)} kg is still in progress.</p>
+          <h3>2. Circularity rate: {c.rate}%</h3>
+          <p className="small muted">Confirmed-reused kg divided by all grounds generated. Of the batches that have closed (reused or disposed), {t.reuseRate}% were reused, but that ignores grounds still in progress or never collected, so it is not the headline figure.</p>
+          <CircularityFunnel c={c} />
+        </section>
+
+        <section>
+          <h3>Reuse pathways</h3>
           <table style={{ minWidth: 0 }}>
             <thead><tr><th>Pathway</th><th className="r">Kg</th><th className="r">Share</th></tr></thead>
             <tbody>
@@ -155,7 +171,7 @@ export default function Reports() {
         </section>
 
         <footer className="xs muted">
-          Figures come from CoffeeBot's grounds log and booking records. Grounds generated is estimated from cups served; reuse counts only batches confirmed as Reused.
+          Method: Circularity rate = kg of batches marked Reused ÷ grounds generated. Grounds generated is estimated as cups served × 20 g, so it is a modelled denominator, not a weighed one. Reuse counts only batches confirmed as Reused and is capped at grounds generated. The unrecovered residual (not collected, in progress, disposed) is always reported. Figures come from CoffeeBot's grounds log and booking records.
         </footer>
       </motion.article>
     </Page>

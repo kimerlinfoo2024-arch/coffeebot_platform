@@ -1,0 +1,7 @@
+.funnel { display: flex; flex-direction: column; gap: var(--s3); }
+.fn-head { display: flex; justify-content: space-between; gap: var(--s3); align-items: baseline; flex-wrap: wrap; margin-bottom: 4px; }
+.fn-track { height: 12px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.fn-bar { height: 100%; border-radius: 999px; background: var(--brew); }
+.fn-row.is-key .fn-bar { background: var(--leaf); }
+.fn-resid { display: flex; flex-direction: column; gap: 2px; padding-top: var(--s3); border-top: 1px dashed var(--line); }
+.fn-resid b { color: var(--bad); }

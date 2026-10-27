@@ -142,7 +142,7 @@ export default function Grounds() {
           <div className="stat lead"><b className="num">{fmt(t.logged)} kg</b><span className="lbl">Logged across {batches.length} batches</span></div>
           <div className="stat"><b className="num">{fmt(t.reused)} kg</b><span className="lbl">Confirmed reused</span></div>
           <div className="stat"><b className="num">{fmt(t.inProgress)} kg</b><span className="lbl">Still in progress</span></div>
-          <div className={`stat ${t.disposed ? 'warn' : ''}`}><b className="num">{t.reuseRate}%</b><span className="lbl">Reuse rate · {fmt(t.disposed)} kg disposed</span></div>
+          <div className={`stat ${t.disposed ? 'warn' : ''}`}><b className="num">{t.reuseRate}%</b><span className="lbl">Of closed batches reused · {fmt(t.disposed)} kg disposed</span></div>
         </motion.div>
 
         <div className="grounds-grid">

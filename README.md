@@ -64,8 +64,32 @@ src/
   pages/public|org|staff/
 ```
 
+## Shared data (Supabase)
+Operational data — batches, bookings, partners, requests, inbox, feed, reach, course orders —
+lives in the zustand store and is mirrored through `src/lib/sync.js`:
+
+- **No configuration**: everything persists in this browser's localStorage. The footer shows
+  *This browser only*.
+- **With Supabase**: every browser reads and writes the same slices and sees changes live, so a
+  booking on one laptop appears on the staff Overview on another within a second. The footer
+  shows *Live · shared data*.
+
+Setup (about five minutes):
+1. Create a free project at supabase.com.
+2. SQL editor → paste and run `supabase/schema.sql` (one `shared_state` table, open prototype
+   policies, realtime enabled).
+3. Copy `.env.example` to `.env.local` and fill in the project URL and anon key from
+   Project Settings → API. Restart `npm run dev`.
+4. The first browser to open the app seeds the table from `src/data/seed.js`. Staff can put
+   everything back to the seed figures with **Reports → Demo data → Reset**.
+
+Design notes: one JSON row per slice, last write wins per slice, and the anon key can write
+everything. That is deliberate for a booth demo and must change (per-row tables, role policies,
+server-side auth) before any real deployment. Accounts and organisations stay in the browser
+because the table is publicly readable.
+
 ## Accounts and routing
-There is no backend yet. Organisations and accounts are seeded in `src/data/orgs.js` and
+There is no backend for accounts yet. Organisations and accounts are seeded in `src/data/orgs.js` and
 kept in the browser's localStorage (`coffeebot-auth-v1`); passwords are salted and hashed
 but this is **not** real security — move accounts and the role check to a server before launch.
 

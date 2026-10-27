@@ -82,6 +82,33 @@ export function usageTotals(usage) {
   return { cups, kg: cups * GROUNDS_PER_CUP, perWeek: usage.length ? cups / usage.length : 0 };
 }
 
+/** Circularity Rate — the one headline reuse figure.
+    rate = confirmed-reused kg / grounds generated (estimated from cups served).
+    Only batches marked Reused count, reuse is capped at what was generated, and the
+    unrecovered residual is always reported (never rounded up to 100%). */
+export function circularity(batches, usage) {
+  const generated = usageTotals(usage).kg;
+  const sum = (f) => batches.filter(f).reduce((a, b) => a + b.kg, 0);
+  const logged = sum(() => true);
+  const dispatched = sum((b) => b.status === 'Dispatched' || b.status === 'Reused');
+  const reused = Math.min(sum((b) => b.status === 'Reused'), generated || Infinity);
+  const disposed = sum((b) => b.status === 'Disposed');
+  const inProgress = Math.max(0, logged - reused - disposed);
+  const notCollected = Math.max(0, generated - logged);
+  const residual = Math.max(0, generated - reused);
+  const pct = (kg) => (generated ? Math.round((kg / generated) * 100) : 0);
+  return {
+    generated, logged, dispatched, reused, disposed, inProgress, notCollected, residual,
+    rate: pct(reused), capture: pct(logged), residualPct: generated ? 100 - pct(reused) : 0,
+    stages: [
+      { key: 'generated',  label: 'Generated',        note: 'Estimated from cups served (about 20 g a cup)', kg: generated },
+      { key: 'logged',     label: 'Collected',        note: 'Weighed and logged in the grounds log',         kg: logged },
+      { key: 'dispatched', label: 'Dispatched',       note: 'Sent to a partner or activity (or already reused)', kg: dispatched },
+      { key: 'reused',     label: 'Confirmed reused', note: 'Batch marked Reused. This is the Circularity Rate', kg: reused },
+    ],
+  };
+}
+
 /** per-organisation education summary from bookings */
 export function educationByOrg(bookings) {
   const by = {};

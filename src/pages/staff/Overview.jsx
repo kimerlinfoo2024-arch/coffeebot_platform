@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
-import { groundsTotals, weekRow, batchTotals, usageTotals, pathways, fmt } from '../../lib/calc';
+import { groundsTotals, weekRow, batchTotals, usageTotals, pathways, circularity, fmt } from '../../lib/calc';
+import CircularityFunnel from '../../components/ui/CircularityFunnel';
 import { WEEKS } from '../../data/seed';
 import { StackedBars, Donut } from '../../components/ui/charts';
 import './overview.css';
@@ -16,7 +17,8 @@ export default function Overview() {
   const { reach, bookings, partners, inbox, feed, missionsAssigned, missionsCompleted, batches, usage } = useStore((s) => s);
   const orgs = new Set(bookings.map((b) => b.org)).size + 2;
   const g = groundsTotals(bookings, partners);
-  const circularity = Math.round(((g.act + g.part) / g.collected) * 100);
+  const routed = Math.round(((g.act + g.part) / g.collected) * 100);
+  const c = circularity(batches, usage);
   const t = batchTotals(batches);
   const u = usageTotals(usage);
   const paths = pathways(batches);
@@ -48,8 +50,18 @@ export default function Overview() {
           <div className="stat lead"><b className="num">{reach.people.toLocaleString()}</b><span className="lbl">People reached across {orgs} schools and workplaces</span></div>
           <div className="stat"><b className="num">{(reach.families + missionsCompleted).toLocaleString()}</b><span className="lbl">Family members reached · {12 + missionsAssigned} missions this week</span></div>
           <div className="stat"><b className="num">{u.cups.toLocaleString()}</b><span className="lbl">Cups served in the last 4 weeks</span></div>
-          <div className={`stat ${t.reuseRate < 70 ? 'warn' : ''}`}><b className="num">{t.reuseRate}%</b><span className="lbl">Reuse rate of closed batches</span></div>
+          <div className={`stat ${c.rate < 50 ? 'warn' : ''}`}><b className="num">{c.rate}%</b><span className="lbl">Circularity rate · confirmed reuse of all grounds generated</span></div>
         </motion.div>
+
+        <section>
+          <div className="spread ov-head">
+            <h2>Circularity</h2>
+            <Link className="small" to="/staff/reports">Methodology in Reports →</Link>
+          </div>
+          <motion.div {...reveal} className="panel">
+            <CircularityFunnel c={c} />
+          </motion.div>
+        </section>
 
         <section>
           <div className="spread ov-head">
@@ -92,7 +104,7 @@ export default function Overview() {
               <div><span>Booked for activities</span><b className="num">{fmt(g.act)} kg</b></div>
               <div><span>Going to {partners.length} partners</span><b className="num">{fmt(g.part)} kg</b></div>
               <div><span>At risk of disposal</span><b className={`num ${g.risk ? 'badc' : ''}`}>{fmt(g.risk)} kg</b></div>
-              <div><span>Routed overall</span><b className="num">{circularity}%</b></div>
+              <div><span>Routed overall</span><b className="num">{routed}%</b></div>
               {g.risk > 0 && <Link className="btn ghost sm" to="/staff/partners">Review partner requests</Link>}
             </div>
           </motion.div>
