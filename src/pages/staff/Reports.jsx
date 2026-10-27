@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
 import { VISIBILITY_ITEMS } from '../../data/seed';
-import { batchTotals, pathways, usageTotals, educationByOrg, capTotal, circularity, fmt } from '../../lib/calc';
+import { batchTotals, pathways, usageTotals, educationByOrg, capTotal, circularity, liveSummary, withLive, fmt } from '../../lib/calc';
 import CircularityFunnel from '../../components/ui/CircularityFunnel';
 import { toCSV, downloadFile, today, BATCH_COLS } from '../../lib/download';
 import './reports.css';
@@ -14,7 +14,9 @@ const reveal = {
 };
 
 export default function Reports() {
-  const { batches, usage, bookings, partners, reach, reusedYear, missionsCompleted, quizzesDone, visibility, setVisibility, resetDemoData, sync } = useStore((s) => s);
+  const { batches, usage: baseUsage, bookings, partners, reach, reusedYear, missionsCompleted, quizzesDone, visibility, setVisibility, resetDemoData, sync, ...rest } = useStore((s) => s);
+  const liveCups = liveSummary(rest).cups;
+  const usage = withLive(baseUsage, liveCups);
 
   const t = batchTotals(batches);
   const u = usageTotals(usage);
@@ -23,7 +25,7 @@ export default function Reports() {
   const eduKg = edu.reduce((a, o) => a + o.kg, 0);
   const c = circularity(batches, usage);
   const capturePct = u.kg ? Math.round((t.logged / u.kg) * 100) : 0;
-  const period = `${usage[0]?.w ?? ''} – ${usage[usage.length - 1]?.w ?? ''} 2026`;
+  const period = `${baseUsage[0]?.w ?? ''} – ${baseUsage[baseUsage.length - 1]?.w ?? ''} 2026${liveCups ? ` plus ${liveCups} simulated live cups` : ''}`;
 
   const summaryRows = [
     ['Cups served', u.cups],

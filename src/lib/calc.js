@@ -3,7 +3,7 @@
    Pure functions so both org and staff views share one source
    of truth.
    ============================================================ */
-import { ACTS, WEEKS, COLLECTED, GROUNDS_PER_CUP } from '../data/seed';
+import { ACTS, WEEKS, COLLECTED, GROUNDS_PER_CUP, MACHINES, LIVE_KEY } from '../data/seed';
 
 export const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString();
 
@@ -81,6 +81,19 @@ export function usageTotals(usage) {
   const cups = usage.reduce((a, u) => a + u.cups, 0);
   return { cups, kg: cups * GROUNDS_PER_CUP, perWeek: usage.length ? cups / usage.length : 0 };
 }
+
+/** simulated machine feed → per-machine counters, total, and the latest brews across machines */
+export function liveSummary(state) {
+  const machines = MACHINES.map((m) => {
+    const v = state[LIVE_KEY(m.id)] || { cups: 0, recent: [] };
+    return { ...m, cups: v.cups || 0, last: v.recent?.[0] ?? null, recent: v.recent || [] };
+  });
+  const recent = machines.flatMap((m) => m.recent.map((t) => ({ t, name: m.name }))).sort((a, b) => b.t - a.t).slice(0, 6);
+  return { machines, cups: machines.reduce((a, m) => a + m.cups, 0), recent };
+}
+
+/** usage history plus the live feed as one extra period, so grounds generated keeps up with brewing */
+export const withLive = (usage, liveCups) => (liveCups > 0 ? [...usage, { w: 'Live', cups: liveCups }] : usage);
 
 /** Circularity Rate — the one headline reuse figure.
     rate = confirmed-reused kg / grounds generated (estimated from cups served).

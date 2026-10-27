@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
-import { groundsTotals, weekRow, batchTotals, usageTotals, pathways, circularity, fmt } from '../../lib/calc';
+import { groundsTotals, weekRow, batchTotals, usageTotals, pathways, circularity, liveSummary, withLive, fmt } from '../../lib/calc';
+import LiveFeed from '../../components/ui/LiveFeed';
 import CircularityFunnel from '../../components/ui/CircularityFunnel';
 import { WEEKS } from '../../data/seed';
 import { StackedBars, Donut } from '../../components/ui/charts';
@@ -14,7 +15,9 @@ const reveal = {
 };
 
 export default function Overview() {
-  const { reach, bookings, partners, inbox, feed, missionsAssigned, missionsCompleted, batches, usage } = useStore((s) => s);
+  const state = useStore((s) => s);
+  const { reach, bookings, partners, inbox, feed, missionsAssigned, missionsCompleted, batches } = state;
+  const usage = withLive(state.usage, liveSummary(state).cups); // history plus the simulated live feed
   const orgs = new Set(bookings.map((b) => b.org)).size + 2;
   const g = groundsTotals(bookings, partners);
   const routed = Math.round(((g.act + g.part) / g.collected) * 100);
@@ -49,9 +52,19 @@ export default function Overview() {
         <motion.div {...reveal} className="stats">
           <div className="stat lead"><b className="num">{reach.people.toLocaleString()}</b><span className="lbl">People reached across {orgs} schools and workplaces</span></div>
           <div className="stat"><b className="num">{(reach.families + missionsCompleted).toLocaleString()}</b><span className="lbl">Family members reached · {12 + missionsAssigned} missions this week</span></div>
-          <div className="stat"><b className="num">{u.cups.toLocaleString()}</b><span className="lbl">Cups served in the last 4 weeks</span></div>
+          <div className="stat"><b className="num">{u.cups.toLocaleString()}</b><span className="lbl">Cups served · 4 weeks plus live feed</span></div>
           <div className={`stat ${c.rate < 50 ? 'warn' : ''}`}><b className="num">{c.rate}%</b><span className="lbl">Circularity rate · confirmed reuse of all grounds generated</span></div>
         </motion.div>
+
+        <section>
+          <div className="spread ov-head">
+            <h2>Live from the machines</h2>
+            <span className="small muted">Updates for everyone, as it happens</span>
+          </div>
+          <motion.div {...reveal} className="panel">
+            <LiveFeed />
+          </motion.div>
+        </section>
 
         <section>
           <div className="spread ov-head">

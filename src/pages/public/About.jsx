@@ -5,7 +5,7 @@ import Page from '../../components/ui/Page';
 import GroundsShowcase from '../../components/hero/GroundsShowcase';
 import { useStore } from '../../store/useStore';
 import { Donut } from '../../components/ui/charts';
-import { pathways, usageTotals, fmt } from '../../lib/calc';
+import { pathways, usageTotals, liveSummary, fmt } from '../../lib/calc';
 
 const reveal = {
   initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
@@ -28,7 +28,8 @@ export default function About() {
   const orgs = new Set(bookings.map((b) => b.org)).size + 2;
   // only reused or in-progress grounds are shown publicly — landfill stays internal
   const paths = pathways(batches.filter((b) => b.status !== 'Disposed' && b.use !== 'Landfill' && b.use !== 'Unassigned'));
-  const cups = usageTotals(usage).cups;
+  const liveCups = useStore((s) => liveSummary(s).cups);
+  const cups = usageTotals(usage).cups + liveCups;
   const anyStats = vis.grounds || vis.reach || vis.partners || vis.usage;
 
   return (

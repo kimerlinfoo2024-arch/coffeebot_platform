@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { SEED, ACTS, WEEKS, MISSIONS } from '../data/seed';
-import { SHARED_KEYS } from '../lib/sync';
+import { SHARED_KEYS, brew as brewCup } from '../lib/sync';
 import { kgFor } from '../lib/calc';
 import { COURSE_PRICES } from '../data/pricing';
 import {
@@ -335,6 +335,14 @@ export const useStore = create(persist((set, get) => ({
   /** toggle what the public About page shows */
   setVisibility(key, on) {
     set((s) => ({ visibility: { ...s.visibility, [key]: on } }));
+  },
+
+  /** a machine reports one brewed cup. With Supabase this goes through the atomic
+      `brew` database function (see lib/sync.js); browser-only mode counts locally. */
+  async brew(machineId) {
+    const r = await brewCup(machineId);
+    if (!r.ok && r.error) get().showToast(`Brew not recorded: ${r.error}`);
+    return r.ok;
   },
 
   /** staff: put every shared slice back to the seed data (demo reset) */

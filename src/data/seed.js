@@ -94,6 +94,15 @@ export const VISIBILITY_ITEMS = [
   ['usage',    'Coffee usage (cups served)'],
 ];
 
+/* ---- Machines (simulated IoT). Each machine owns one shared row, `live_<id>`, and is its only writer. ---- */
+export const MACHINES = [
+  { id: 'm1', name: 'Hartwell L3 pantry',   site: 'Hartwell Logistics' },
+  { id: 'm2', name: 'Bayview lobby café',   site: 'Bayview Tower' },
+  { id: 'm3', name: 'Greenridge staff room', site: 'Greenridge Secondary' },
+  { id: 'm4', name: 'NorthPoint library',    site: 'NorthPoint Campus' },
+];
+export const LIVE_KEY = (id) => `live_${id}`;
+
 export const SEED = {
   batches: [
     { id: 301, date: '2026-09-14', source: 'Hartwell Logistics — L3 pantry',        kg: 22, partner: 'Greenleaf Compost', use: 'Compost',          status: 'Reused',     notes: 'Mixed batch (milk drinks) — compost only' },
@@ -139,3 +148,6 @@ export const SEED = {
   missionsCompleted: 0,
   nextId: 400,
 };
+
+// live brew counters start at zero (one slice per machine)
+MACHINES.forEach((m) => { SEED[LIVE_KEY(m.id)] = { cups: 0, recent: [] }; });

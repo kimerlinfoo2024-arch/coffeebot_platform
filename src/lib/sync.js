@@ -3,23 +3,71 @@
 
    Model: one row per slice in `shared_state` (key, value jsonb).
    The zustand store stays the single place mutations happen; this
-   module only mirrors changed slices up and applies remote rows
-   down. Last write wins per slice, which is fine for a booth demo
-   where two laptops mostly touch different slices.
+   module mirrors changed slices up and applies remote rows down.
+   Last write wins per slice, which is fine for a booth demo where
+   two laptops mostly touch different slices.
+
+   Exception: the machine counters (`live_<id>`). Those are only ever
+   written through the `brew` database function, which increments
+   atomically, so simultaneous reports from several machines and
+   browsers all count. In Supabase mode the browser never writes a
+   live slice itself; it calls brew() and the row comes back.
    ============================================================ */
 import { supabase, BACKEND, TABLE } from './backend';
+import { MACHINES, LIVE_KEY } from '../data/seed';
 
 /** slices every browser should agree on */
 export const SHARED_KEYS = [
   'batches', 'usage', 'visibility', 'bookings', 'partners', 'requests', 'inbox', 'feed',
   'reach', 'reusedYear', 'quizzesDone', 'missionsAssigned', 'missionsCompleted', 'nextId',
   'purchases', 'orders',
+  ...MACHINES.map((m) => LIVE_KEY(m.id)), // simulated machine brew counters
 ];
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const DEBOUNCE_MS = 200;
 
+let store = null;            // the zustand store handed to startSync
+let applyingRemote = false;  // true while server data is being written into the store
+
+/** write server rows into the store without echoing them back up */
+function applyRemote(rows) {
+  if (!store) return;
+  const state = store.getState();
+  const patch = {};
+  rows.forEach((r) => {
+    if (SHARED_KEYS.includes(r.key) && !same(state[r.key], r.value)) patch[r.key] = r.value;
+  });
+  if (!Object.keys(patch).length) return;
+  applyingRemote = true;
+  try { store.setState(patch); } finally { applyingRemote = false; }
+}
+
+/** one machine reports one brewed cup */
+export async function brew(machineId) {
+  if (!store || !MACHINES.some((m) => m.id === machineId)) return { ok: false, error: 'Unknown machine.' };
+  const key = LIVE_KEY(machineId);
+  if (!supabase) {
+    // browser-only mode: nobody else can write, so a local increment is exact
+    store.setState((s) => {
+      const cur = s[key] || { cups: 0, recent: [] };
+      return { [key]: { cups: (cur.cups || 0) + 1, recent: [Date.now(), ...(cur.recent || [])].slice(0, 5) } };
+    });
+    return { ok: true };
+  }
+  const { data, error } = await supabase.rpc('brew', { machine: machineId });
+  if (error) {
+    const missing = /function .*brew/i.test(error.message) || error.code === 'PGRST202';
+    const msg = missing ? 'the brew function is not installed — run supabase/schema.sql' : error.message;
+    console.error('[sync] brew failed', error);
+    return { ok: false, error: msg };
+  }
+  applyRemote([{ key, value: data }]); // realtime will echo the same row; applying now keeps the UI snappy
+  return { ok: true };
+}
+
 export function startSync(useStore) {
+  store = useStore;
   const setStatus = (patch) => useStore.setState((s) => ({ sync: { ...s.sync, ...patch } }));
 
   if (!supabase) {
@@ -28,20 +76,8 @@ export function startSync(useStore) {
   }
   setStatus({ backend: BACKEND, status: 'connecting' });
 
-  let applyingRemote = false;
   const timers = {};
   const pending = {};
-
-  const applyRemote = (rows) => {
-    const state = useStore.getState();
-    const patch = {};
-    rows.forEach((r) => {
-      if (SHARED_KEYS.includes(r.key) && !same(state[r.key], r.value)) patch[r.key] = r.value;
-    });
-    if (!Object.keys(patch).length) return;
-    applyingRemote = true;
-    try { useStore.setState(patch); } finally { applyingRemote = false; }
-  };
 
   const push = async (rows) => {
     const { error } = await supabase.from(TABLE).upsert(rows, { onConflict: 'key' });
@@ -107,5 +143,5 @@ export function startSync(useStore) {
       if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setStatus({ status: 'error', error: `realtime ${status.toLowerCase()}` });
     });
 
-  return () => { unsubStore(); supabase.removeChannel(channel); };
+  return () => { unsubStore(); supabase.removeChannel(channel); store = null; };
 }

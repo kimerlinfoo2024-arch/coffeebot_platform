@@ -76,15 +76,30 @@ lives in the zustand store and is mirrored through `src/lib/sync.js`:
 
 Setup (about five minutes):
 1. Create a free project at supabase.com.
-2. SQL editor → paste and run `supabase/schema.sql` (one `shared_state` table, open prototype
-   policies, realtime enabled).
+2. SQL editor → paste and run the whole of `supabase/schema.sql` (the `shared_state` table, open
+   prototype policies, realtime, and the `brew` function). It is safe to run again after updates.
 3. Copy `.env.example` to `.env.local` and fill in the project URL and anon key from
    Project Settings → API. Restart `npm run dev`.
 4. The first browser to open the app seeds the table from `src/data/seed.js`. Staff can put
    everything back to the seed figures with **Reports → Demo data → Reset**.
 
-Design notes: one JSON row per slice, last write wins per slice, and the anon key can write
-everything. That is deliberate for a booth demo and must change (per-row tables, role policies,
+### Simulated IoT feed
+Four simulated machines live on the staff Overview under **Live from the machines**. A brew
+can come from three places, and every open dashboard updates within about a second:
+
+- the **Brew a cup** button on each machine card, or the **Auto-simulate** switch;
+- `node scripts/emit-brews.mjs [--every 3] [--count 20] [--machine m2]`, which plays a
+  machine from outside the browser using the values in `.env.local`;
+- anything else that calls the `brew(machine)` database function
+  (`POST /rest/v1/rpc/brew` with `{"machine": "m1"}`), which is what a real machine's gateway would do.
+
+The function locks the machine's row, adds one and returns the new value in a single
+transaction, so reports that arrive at the same instant all count. Brews feed cups served and
+grounds generated, so the Circularity rate's denominator moves live. The counters reset with
+the rest of the demo data. Machines are listed in `src/data/seed.js` (`MACHINES`).
+
+Design notes: one JSON row per slice, last write wins per slice (except the machine counters,
+which only change through `brew`), and the anon key can write everything. That is deliberate for a booth demo and must change (per-row tables, role policies,
 server-side auth) before any real deployment. Accounts and organisations stay in the browser
 because the table is publicly readable.
 
