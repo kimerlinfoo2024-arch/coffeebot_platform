@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { liveSummary, fmt } from '../../lib/calc';
 import { GROUNDS_PER_CUP } from '../../data/seed';
@@ -49,7 +50,10 @@ export default function LiveFeed() {
             <b>{m.name}</b>
             <motion.b key={m.cups} className="num lf-n" initial={{ scale: 1.25 }} animate={{ scale: 1 }} transition={{ duration: 0.25 }}>{m.cups}</motion.b>
             <span className="xs muted">{ago(m.last, now)}</span>
-            <button className="btn ghost sm" onClick={() => brew(m.id)}>Brew a cup</button>
+            <div className="row" style={{ gap: 'var(--s2)', flexWrap: 'wrap' }}>
+              <button className="btn ghost sm" onClick={() => brew(m.id)}>Brew a cup</button>
+              <Link className="small" to={`/m/${m.id}`}>QR story →</Link>
+            </div>
           </div>
         ))}
       </div>

@@ -6,6 +6,7 @@ import Counter from '../../components/ui/Counter';
 import Icon from '../../components/ui/Icon';
 import Marquee from '../../components/ui/Marquee';
 import { useStore } from '../../store/useStore';
+import { batchTotals } from '../../lib/calc';
 import { BEAN } from '../../data/art';
 import './landing.css';
 
@@ -25,7 +26,7 @@ const TOPICS = [
 ];
 
 export default function Landing() {
-  const reusedYear = useStore((s) => s.reusedYear);
+  const reusedKg = useStore((s) => batchTotals(s.batches).reused);
   const people = useStore((s) => s.reach.people);
   const families = useStore((s) => s.reach.families);
   const partners = useStore((s) => s.partners.length);
@@ -81,11 +82,11 @@ export default function Landing() {
         <div className="page">
           <motion.div {...reveal} className="stack center" style={{ gap: 'var(--s2)', marginBottom: 'var(--s6)' }}>
             <span className="eyebrow" style={{ color: 'var(--amber-soft)' }}>Shared publicly</span>
-            <h2 style={{ fontSize: 'var(--t-xl)', color: '#fff' }}>What CoffeeBot's grounds have done this year</h2>
+            <h2 style={{ fontSize: 'var(--t-xl)', color: '#fff' }}>What CoffeeBot's grounds have done so far</h2>
           </motion.div>
           <motion.div {...reveal} className="grid4">
             {[
-              { to: reusedYear, suffix: ' kg', lbl: 'Grounds given a second life' },
+              { to: reusedKg, suffix: ' kg', lbl: 'Grounds confirmed reused' },
               { to: people, lbl: 'People reached through activities' },
               { to: families, lbl: 'Family members reached at home' },
               { to: partners, lbl: 'Active reuse partners' },

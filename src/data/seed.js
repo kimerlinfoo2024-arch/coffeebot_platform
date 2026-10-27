@@ -87,7 +87,7 @@ export const BATCH_SOURCES = ['Hartwell Logistics — L3 pantry', 'Bayview Tower
 
 /* ---- What the public About page may show (Reports → visibility) ---- */
 export const VISIBILITY_ITEMS = [
-  ['grounds',  'Grounds reused this year'],
+  ['grounds',  'Grounds confirmed reused'],
   ['reach',    'People and organisations reached'],
   ['pathways', 'Reuse pathways breakdown'],
   ['partners', 'Reuse partner names'],
@@ -95,11 +95,12 @@ export const VISIBILITY_ITEMS = [
 ];
 
 /* ---- Machines (simulated IoT). Each machine owns one shared row, `live_<id>`, and is its only writer. ---- */
+/* `source` ties a machine to the grounds-log entries collected from it (see BATCH_SOURCES). */
 export const MACHINES = [
-  { id: 'm1', name: 'Hartwell L3 pantry',   site: 'Hartwell Logistics' },
-  { id: 'm2', name: 'Bayview lobby café',   site: 'Bayview Tower' },
-  { id: 'm3', name: 'Greenridge staff room', site: 'Greenridge Secondary' },
-  { id: 'm4', name: 'NorthPoint library',    site: 'NorthPoint Campus' },
+  { id: 'm1', name: 'Hartwell L3 pantry',   site: 'Hartwell Logistics',   source: 'Hartwell Logistics — L3 pantry' },
+  { id: 'm2', name: 'Bayview lobby café',   site: 'Bayview Tower',        source: 'Bayview Tower — lobby café' },
+  { id: 'm3', name: 'Greenridge staff room', site: 'Greenridge Secondary', source: 'Greenridge Secondary — staff room' },
+  { id: 'm4', name: 'NorthPoint library',    site: 'NorthPoint Campus',    source: 'NorthPoint Campus — library' },
 ];
 export const LIVE_KEY = (id) => `live_${id}`;
 
@@ -142,7 +143,6 @@ export const SEED = {
     'Bayview Tower ran an office quiz with 46 staff',
   ],
   reach: { people: 1420, families: 310, orgs: 6 },
-  reusedYear: 4820,
   quizzesDone: 0,
   missionsAssigned: 0,
   missionsCompleted: 0,

@@ -92,6 +92,22 @@ export function liveSummary(state) {
   return { machines, cups: machines.reduce((a, m) => a + m.cups, 0), recent };
 }
 
+/** everything one machine's QR story page needs: its live brews, the batches collected from it,
+    and where those batches went. Public, so landfill and unassigned batches are kept out of the pathways. */
+export function machineStory(state, machineId) {
+  const m = MACHINES.find((x) => x.id === machineId);
+  if (!m) return null;
+  const live = state[LIVE_KEY(m.id)] || { cups: 0, recent: [] };
+  const batches = state.batches.filter((b) => b.source === m.source);
+  const t = batchTotals(batches);
+  const paths = pathways(batches.filter((b) => b.status !== 'Disposed' && b.use !== 'Landfill' && b.use !== 'Unassigned'));
+  const sessions = state.bookings.filter((b) => b.outcome && batches.some((x) => x.id === b.batchId));
+  return {
+    ...m, cups: live.cups || 0, last: live.recent?.[0] ?? null, recent: live.recent || [],
+    generatedKg: (live.cups || 0) * GROUNDS_PER_CUP, batches, ...t, paths, sessions,
+  };
+}
+
 /** usage history plus the live feed as one extra period, so grounds generated keeps up with brewing */
 export const withLive = (usage, liveCups) => (liveCups > 0 ? [...usage, { w: 'Live', cups: liveCups }] : usage);
 

@@ -19,7 +19,7 @@ import { MACHINES, LIVE_KEY } from '../data/seed';
 /** slices every browser should agree on */
 export const SHARED_KEYS = [
   'batches', 'usage', 'visibility', 'bookings', 'partners', 'requests', 'inbox', 'feed',
-  'reach', 'reusedYear', 'quizzesDone', 'missionsAssigned', 'missionsCompleted', 'nextId',
+  'reach', 'quizzesDone', 'missionsAssigned', 'missionsCompleted', 'nextId',
   'purchases', 'orders',
   ...MACHINES.map((m) => LIVE_KEY(m.id)), // simulated machine brew counters
 ];

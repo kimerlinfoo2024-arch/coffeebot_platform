@@ -5,7 +5,7 @@ import Page from '../../components/ui/Page';
 import GroundsShowcase from '../../components/hero/GroundsShowcase';
 import { useStore } from '../../store/useStore';
 import { Donut } from '../../components/ui/charts';
-import { pathways, usageTotals, liveSummary, fmt } from '../../lib/calc';
+import { pathways, usageTotals, liveSummary, batchTotals, fmt } from '../../lib/calc';
 
 const reveal = {
   initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
@@ -20,11 +20,10 @@ const STEPS = [
 ];
 
 export default function About() {
-  const { reusedYear, bookings, reach, partners, batches, usage, visibility: vis } = useStore((s) => ({
-    reusedYear: s.reusedYear, bookings: s.bookings, reach: s.reach, partners: s.partners,
+  const { bookings, reach, partners, batches, usage, visibility: vis } = useStore((s) => ({
+    bookings: s.bookings, reach: s.reach, partners: s.partners,
     batches: s.batches, usage: s.usage, visibility: s.visibility,
   }));
-  const actKg = bookings.reduce((a, b) => a + b.kg, 0);
   const orgs = new Set(bookings.map((b) => b.org)).size + 2;
   // only reused or in-progress grounds are shown publicly — landfill stays internal
   const paths = pathways(batches.filter((b) => b.status !== 'Disposed' && b.use !== 'Landfill' && b.use !== 'Unassigned'));
@@ -46,14 +45,14 @@ export default function About() {
       {anyStats && (
         <>
           <motion.div {...reveal} className="stats">
-            {vis.grounds && <div className="stat lead"><Counter to={reusedYear + actKg} suffix=" kg" className="bignum" /><span className="lbl">Grounds given a second life this year</span></div>}
+            {vis.grounds && <div className="stat lead"><Counter to={batchTotals(batches).reused} suffix=" kg" className="bignum" /><span className="lbl">Grounds confirmed reused</span></div>}
             {vis.reach && <div className="stat"><Counter to={reach.people} className="bignum" /><span className="lbl">People reached through activities</span></div>}
             {vis.reach && <div className="stat"><Counter to={orgs} className="bignum" /><span className="lbl">Schools and workplaces</span></div>}
             {vis.partners && <div className="stat"><Counter to={partners.length} className="bignum" /><span className="lbl">Reuse partners</span></div>}
             {vis.usage && <div className="stat"><Counter to={cups} className="bignum" /><span className="lbl">Cups served in the last 4 weeks</span></div>}
           </motion.div>
           <p className="small muted" style={{ margin: '12px 0 var(--s6)' }}>
-            Figures update from CoffeeBot's operations dashboard. Reuse only counts once a partner or activity confirms it.
+            Figures come straight from CoffeeBot's grounds log. Reuse only counts once a batch is confirmed reused by a partner or a logged session.
           </p>
         </>
       )}

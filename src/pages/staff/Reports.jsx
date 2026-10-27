@@ -14,7 +14,7 @@ const reveal = {
 };
 
 export default function Reports() {
-  const { batches, usage: baseUsage, bookings, partners, reach, reusedYear, missionsCompleted, quizzesDone, visibility, setVisibility, resetDemoData, sync, ...rest } = useStore((s) => s);
+  const { batches, usage: baseUsage, bookings, partners, reach, missionsCompleted, quizzesDone, visibility, setVisibility, resetDemoData, sync, ...rest } = useStore((s) => s);
   const liveCups = liveSummary(rest).cups;
   const usage = withLive(baseUsage, liveCups);
 
@@ -38,7 +38,6 @@ export default function Reports() {
     ['Unrecovered residual (kg)', fmt(c.residual)],
     ['Dispatched (kg)', fmt(c.dispatched)],
     ['Closed-batch reuse rate (%)', t.reuseRate],
-    ['Grounds reused this year (kg)', reusedYear],
     ['People reached', reach.people],
     ['Family members reached', reach.families + missionsCompleted],
     ['Education partners', edu.length],

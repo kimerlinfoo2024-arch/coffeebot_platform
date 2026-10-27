@@ -13,6 +13,7 @@ import Partner from './pages/public/Partner';
 import Contact from './pages/public/Contact';
 import SignIn from './pages/public/SignIn';
 import SignUp from './pages/public/SignUp';
+import MachineStory from './pages/public/MachineStory';
 
 import Dashboard from './pages/org/Dashboard';
 import EducationHub from './pages/org/EducationHub';
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/signin" element={<GuestOnly><SignIn /></GuestOnly>} />
             <Route path="/signup" element={<GuestOnly><SignUp /></GuestOnly>} />
+            <Route path="/m/:machineId" element={<MachineStory />} />  {/* QR on the machine opens this */}
 
             {/* learning partners: teachers and corporate users */}
             <Route path="/app" element={<RequireRole need="learner"><Dashboard /></RequireRole>} />
