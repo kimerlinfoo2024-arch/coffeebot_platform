@@ -1,13 +1,16 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useStore } from '../../store/useStore';
 import { batchTotals } from '../../lib/calc';
 import { JCUP, JPILE, JSCRUB, BEAN, Svg } from '../../data/art';
 import './scroll.css';
 
-gsap.registerPlugin(ScrollTrigger);
+/* gsap (115 kB) is only fetched when the pinned scroll animation will run: desktop, motion
+   allowed. Phones and reduced-motion users get the stacked version and never download it. */
+const loadGsap = () => Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([g, st]) => {
+  g.default.registerPlugin(st.ScrollTrigger);
+  return { gsap: g.default, ScrollTrigger: st.ScrollTrigger };
+});
 
 const BEANS = [
   { l: '18%', t: '22%', s: 70,  r: -30 },
@@ -33,8 +36,12 @@ export default function ScrollJourney() {
   const mobile = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 760px)').matches;
   const stacked = reduce || mobile;
 
-  useLayoutEffect(() => {
-    if (stacked) return;
+  useEffect(() => {
+    if (stacked) return undefined;
+    let cancelled = false;
+    let cleanup = () => {};
+    loadGsap().then(({ gsap, ScrollTrigger }) => {
+    if (cancelled) return;
     const ctx = gsap.context((self) => {
       const q = self.selector;
       const [cup] = q('.cup');
@@ -90,7 +97,9 @@ export default function ScrollJourney() {
 
     const onResize = () => ScrollTrigger.refresh();
     window.addEventListener('resize', onResize);
-    return () => { window.removeEventListener('resize', onResize); ctx.revert(); };
+    cleanup = () => { window.removeEventListener('resize', onResize); ctx.revert(); };
+    });
+    return () => { cancelled = true; cleanup(); };
   }, [stacked]);
 
   if (stacked) {

@@ -13,7 +13,7 @@
    browsers all count. In Supabase mode the browser never writes a
    live slice itself; it calls brew() and the row comes back.
    ============================================================ */
-import { supabase, BACKEND, TABLE } from './backend';
+import { getClient, BACKEND, TABLE } from './backend';
 import { MACHINES, LIVE_KEY } from '../data/seed';
 
 /** slices every browser should agree on */
@@ -47,7 +47,7 @@ function applyRemote(rows) {
 export async function brew(machineId) {
   if (!store || !MACHINES.some((m) => m.id === machineId)) return { ok: false, error: 'Unknown machine.' };
   const key = LIVE_KEY(machineId);
-  if (!supabase) {
+  if (BACKEND !== 'supabase') {
     // browser-only mode: nobody else can write, so a local increment is exact
     store.setState((s) => {
       const cur = s[key] || { cups: 0, recent: [] };
@@ -55,6 +55,7 @@ export async function brew(machineId) {
     });
     return { ok: true };
   }
+  const supabase = await getClient();
   const { data, error } = await supabase.rpc('brew', { machine: machineId });
   if (error) {
     const missing = /function .*brew/i.test(error.message) || error.code === 'PGRST202';
@@ -70,16 +71,19 @@ export function startSync(useStore) {
   store = useStore;
   const setStatus = (patch) => useStore.setState((s) => ({ sync: { ...s.sync, ...patch } }));
 
-  if (!supabase) {
+  if (BACKEND !== 'supabase') {
     setStatus({ backend: BACKEND, status: 'local' });
     return () => {};
   }
   setStatus({ backend: BACKEND, status: 'connecting' });
+  let channel = null;   // realtime subscription, once the client has loaded
+  let stopped = false;
 
   const timers = {};
   const pending = {};
 
   const push = async (rows) => {
+    const supabase = await getClient();
     const { error } = await supabase.from(TABLE).upsert(rows, { onConflict: 'key' });
     if (error) {
       console.error('[sync] upsert failed', error);
@@ -113,8 +117,23 @@ export function startSync(useStore) {
     });
   });
 
+  // 3. remote edits -> local
+  const subscribe = (supabase) => {
+    channel = supabase
+      .channel(`shared_state_${Math.random().toString(36).slice(2)}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload) => {
+        if (payload.new?.key) applyRemote([payload.new]);
+      })
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setStatus({ status: 'error', error: `realtime ${status.toLowerCase()}` });
+      });
+  };
+
   // 2. initial load: remote wins; an empty table is seeded from this browser
   (async () => {
+    const supabase = await getClient();
+    if (stopped) return;
+    subscribe(supabase); // 3. remote edits -> local
     const { data, error } = await supabase.from(TABLE).select('key,value');
     if (error) {
       console.error('[sync] load failed', error);
@@ -133,15 +152,10 @@ export function startSync(useStore) {
     }
   })();
 
-  // 3. remote edits -> local
-  const channel = supabase
-    .channel(`shared_state_${Math.random().toString(36).slice(2)}`)
-    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload) => {
-      if (payload.new?.key) applyRemote([payload.new]);
-    })
-    .subscribe((status) => {
-      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setStatus({ status: 'error', error: `realtime ${status.toLowerCase()}` });
-    });
-
-  return () => { unsubStore(); supabase.removeChannel(channel); store = null; };
+  return () => {
+    stopped = true;
+    unsubStore();
+    if (channel) getClient().then((supabase) => supabase.removeChannel(channel));
+    store = null;
+  };
 }
