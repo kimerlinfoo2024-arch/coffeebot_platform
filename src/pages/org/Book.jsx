@@ -13,8 +13,10 @@ export default function Book() {
   const addBooking = useStore((s) => s.addBooking);
 
   const owned = useStore((s) => s.purchases[s.user.orgId]) || [];
-  const initialAct = owned.includes(params.get('act')) ? params.get('act') : owned[0];
-  const [act, setAct] = useState(initialAct);
+  const wanted = owned.includes(params.get('act')) ? params.get('act') : owned[0];
+  const [picked, setAct] = useState(wanted);
+  // owned courses can arrive after mount (shared data loading), so never trust a stale pick
+  const act = owned.includes(picked) ? picked : wanted;
   const [people, setPeople] = useState(30);
   const [week, setWeek] = useState(null);
 

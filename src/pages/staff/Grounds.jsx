@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
-import { BATCH_STATUS, BATCH_USES, BATCH_SOURCES } from '../../data/seed';
+import { BATCH_STATUS, BATCH_USES, BATCH_SOURCES, ACTS, WEEKS } from '../../data/seed';
 import { batchTotals, fmt } from '../../lib/calc';
 import { toCSV, downloadFile, today, BATCH_COLS } from '../../lib/download';
 import './grounds.css';
@@ -27,7 +27,10 @@ function StatusPicker({ value, onChange }) {
   );
 }
 
-function BatchEditor({ batch, partners, onChange, onClose }) {
+function BatchEditor({ batch, partners, bookings, onChange, onDispatch, onClose }) {
+  const linked = bookings.find((b) => b.id === batch.bookingId);
+  const open = bookings.filter((b) => !b.outcome && (!b.batchId || b.batchId === batch.id));
+  const canDispatch = ['Collected', 'Drying', 'Dispatched'].includes(batch.status);
   return (
     <div className="panel glass grounds-side">
       <div className="panel-head">
@@ -39,14 +42,37 @@ function BatchEditor({ batch, partners, onChange, onClose }) {
         <div><span className="muted">Source</span><b style={{ textAlign: 'right' }}>{batch.source}</b></div>
         <div><span className="muted">Weight</span><b className="num">{fmt(batch.kg)} kg</b></div>
       </div>
-      <div className="field"><label>Status</label><StatusPicker value={batch.status} onChange={(status) => onChange({ status })} /></div>
+      {linked ? (
+        <div className="field">
+          <label>Dispatched to a session</label>
+          <p className="small" style={{ margin: 0 }}><b>{linked.org}</b> · {ACTS[linked.act].name} · week of {WEEKS[linked.week].w}</p>
+          <p className="xs muted">
+            {linked.outcome ? 'The teacher has logged this session with a photo. Reuse is confirmed.'
+              : batch.status === 'Reused' ? 'Reuse confirmed.'
+              : 'Waiting for the teacher to log the session. This batch becomes Reused only when they do, so status is locked.'}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="field"><label>Status</label><StatusPicker value={batch.status} onChange={(status) => onChange({ status })} /></div>
+          {canDispatch && open.length > 0 && (
+            <div className="field"><label htmlFor="eDispatch">Dispatch to a booked session</label>
+              <select id="eDispatch" value="" onChange={(e) => e.target.value && onDispatch(Number(e.target.value))}>
+                <option value="">Choose a booking…</option>
+                {open.map((b) => <option key={b.id} value={b.id}>{b.org} · {ACTS[b.act].name} · {WEEKS[b.week].w} · {b.kg} kg kit</option>)}
+              </select>
+              <p className="xs muted">The teacher then logs the session and photo, which confirms the reuse.</p>
+            </div>
+          )}
+        </>
+      )}
       <div className="grid2" style={{ gap: 'var(--s3)' }}>
         <div className="field"><label htmlFor="eUse">Use</label>
-          <select id="eUse" value={batch.use} onChange={(e) => onChange({ use: e.target.value })}>
+          <select id="eUse" value={batch.use} disabled={!!linked} onChange={(e) => onChange({ use: e.target.value })}>
             {BATCH_USES.map((u) => <option key={u}>{u}</option>)}
           </select></div>
         <div className="field"><label htmlFor="ePartner">Partner</label>
-          <select id="ePartner" value={batch.partner} onChange={(e) => onChange({ partner: e.target.value })}>
+          <select id="ePartner" value={batch.partner} disabled={!!linked} onChange={(e) => onChange({ partner: e.target.value })}>
             <option value="">None</option>
             {partners.map((p) => <option key={p.name}>{p.name}</option>)}
           </select></div>
@@ -110,6 +136,8 @@ export default function Grounds() {
   const partners = useStore((s) => s.partners);
   const addBatch = useStore((s) => s.addBatch);
   const updateBatch = useStore((s) => s.updateBatch);
+  const dispatchBatch = useStore((s) => s.dispatchBatch);
+  const bookings = useStore((s) => s.bookings);
 
   const [filter, setFilter] = useState('All');
   const [selId, setSelId] = useState(null);
@@ -142,7 +170,7 @@ export default function Grounds() {
           <div className="stat lead"><b className="num">{fmt(t.logged)} kg</b><span className="lbl">Logged across {batches.length} batches</span></div>
           <div className="stat"><b className="num">{fmt(t.reused)} kg</b><span className="lbl">Confirmed reused</span></div>
           <div className="stat"><b className="num">{fmt(t.inProgress)} kg</b><span className="lbl">Still in progress</span></div>
-          <div className={`stat ${t.disposed ? 'warn' : ''}`}><b className="num">{t.reuseRate}%</b><span className="lbl">Reuse rate · {fmt(t.disposed)} kg disposed</span></div>
+          <div className={`stat ${t.disposed ? 'warn' : ''}`}><b className="num">{t.reuseRate}%</b><span className="lbl">Of closed batches reused · {fmt(t.disposed)} kg disposed</span></div>
         </motion.div>
 
         <div className="grounds-grid">
@@ -186,8 +214,8 @@ export default function Grounds() {
 
           <div className="grounds-aside">
             {selected ? (
-              <BatchEditor key={selected.id} batch={selected} partners={partners}
-                onChange={(patch) => updateBatch(selected.id, patch)} onClose={() => setSelId(null)} />
+              <BatchEditor key={selected.id} batch={selected} partners={partners} bookings={bookings}
+                onChange={(patch) => updateBatch(selected.id, patch)} onDispatch={(bid) => dispatchBatch(selected.id, bid)} onClose={() => setSelId(null)} />
             ) : (
               <NewBatch partners={partners} onAdd={addBatch} />
             )}

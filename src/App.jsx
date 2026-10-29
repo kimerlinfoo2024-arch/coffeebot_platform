@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useStore } from './store/useStore';
@@ -8,25 +8,30 @@ import Layout from './components/layout/Layout';
 import ToastHost from './components/ui/ToastHost';
 
 import Landing from './pages/public/Landing';
-import About from './pages/public/About';
-import Partner from './pages/public/Partner';
-import Contact from './pages/public/Contact';
-import SignIn from './pages/public/SignIn';
-import SignUp from './pages/public/SignUp';
 
-import Dashboard from './pages/org/Dashboard';
-import EducationHub from './pages/org/EducationHub';
-import LearnDo from './pages/org/LearnDo';
-import Play from './pages/org/Play';
-import Book from './pages/org/Book';
-import Cart from './pages/org/Cart';
-import MyBookings from './pages/org/MyBookings';
+/* Every page except the landing page loads on demand, so a visitor (or a phone
+   scanning a machine's QR code) downloads only the code for the page they open. */
+const lazyPage = (load) => lazy(load);
+const About = lazyPage(() => import('./pages/public/About'));
+const Partner = lazyPage(() => import('./pages/public/Partner'));
+const Contact = lazyPage(() => import('./pages/public/Contact'));
+const SignIn = lazyPage(() => import('./pages/public/SignIn'));
+const SignUp = lazyPage(() => import('./pages/public/SignUp'));
+const MachineStory = lazyPage(() => import('./pages/public/MachineStory'));
 
-import Overview from './pages/staff/Overview';
-import DryingPlan from './pages/staff/DryingPlan';
-import Partners from './pages/staff/Partners';
-import Grounds from './pages/staff/Grounds';
-import Reports from './pages/staff/Reports';
+const Dashboard = lazyPage(() => import('./pages/org/Dashboard'));
+const EducationHub = lazyPage(() => import('./pages/org/EducationHub'));
+const LearnDo = lazyPage(() => import('./pages/org/LearnDo'));
+const Play = lazyPage(() => import('./pages/org/Play'));
+const Book = lazyPage(() => import('./pages/org/Book'));
+const Cart = lazyPage(() => import('./pages/org/Cart'));
+const MyBookings = lazyPage(() => import('./pages/org/MyBookings'));
+
+const Overview = lazyPage(() => import('./pages/staff/Overview'));
+const DryingPlan = lazyPage(() => import('./pages/staff/DryingPlan'));
+const Partners = lazyPage(() => import('./pages/staff/Partners'));
+const Grounds = lazyPage(() => import('./pages/staff/Grounds'));
+const Reports = lazyPage(() => import('./pages/staff/Reports'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -65,6 +70,8 @@ export default function App() {
       <ScrollToTop />
       <Layout>
         <AnimatePresence mode="wait">
+          {/* the placeholder keeps the footer in place while a page's chunk loads (no layout shift) */}
+          <Suspense fallback={<div style={{ minHeight: '80vh' }} aria-hidden="true" />}>
           <Routes location={location} key={location.pathname}>
             {/* public */}
             <Route path="/" element={<Landing />} />
@@ -73,6 +80,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/signin" element={<GuestOnly><SignIn /></GuestOnly>} />
             <Route path="/signup" element={<GuestOnly><SignUp /></GuestOnly>} />
+            <Route path="/m/:machineId" element={<MachineStory />} />  {/* QR on the machine opens this */}
 
             {/* learning partners: teachers and corporate users */}
             <Route path="/app" element={<RequireRole need="learner"><Dashboard /></RequireRole>} />
@@ -92,6 +100,7 @@ export default function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </Suspense>
         </AnimatePresence>
       </Layout>
       <ToastHost />

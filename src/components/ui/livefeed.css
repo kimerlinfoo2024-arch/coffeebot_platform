@@ -1,0 +1,10 @@
+.lf { display: flex; flex-direction: column; gap: var(--s4); }
+.lf-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+.lf-total { font-size: 34px; }
+.lf-auto { display: inline-flex; align-items: center; gap: var(--s2); cursor: pointer; }
+.lf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--s3); }
+.lf-m { display: flex; flex-direction: column; gap: 2px; padding: var(--s3); border: 1px solid var(--line); border-radius: 12px; background: var(--paper, transparent); }
+.lf-n { font-size: 30px; line-height: 1.1; margin: 4px 0; display: inline-block; transform-origin: left; }
+.lf-m .row { margin-top: var(--s2); align-items: center; }
+.lf-note { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; margin: 0; }
+.lf-note code { font-size: 12px; }
