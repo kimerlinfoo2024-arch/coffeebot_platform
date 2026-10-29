@@ -4,10 +4,11 @@ A digital **Circular Sustainability Hub** for CoffeeBot — one platform, three 
 types. The dashboard a user reaches is decided by their account's organisation
 (see `src/data/orgs.js`), never chosen by hand:
 
-- **CoffeeBot staff** (`@coffeebot.com`) — measure the whole loop (consumption, grounds,
-  reuse destinations, drying plan, partner approvals).
-- **Schools & workplaces** — learn by doing (book coffee-ground activities, run quizzes
-  and home missions). Participation feeds back into the staff impact figures.
+- **CoffeeBot staff** (`@coffeebot.com`) — measure the whole loop (consumption, grounds log,
+  reuse destinations, drying plan, partner approvals, downloadable reports and public visibility).
+- **Schools & workplaces** — learn through the Education Hub, buy courses, then book
+  coffee-ground activities, run quizzes and home missions. Participation feeds back into the
+  staff impact figures.
 
 Rebuilt from a single-file HTML prototype into React + Vite, with a few deliberate
 "showpiece" moments and a restructured information architecture.
@@ -15,7 +16,7 @@ Rebuilt from a single-file HTML prototype into React + Vite, with a few delibera
 ## Stack
 - **React 18 + Vite** — app shell
 - **react-router-dom** — public / org / staff routes, role-gated
-- **zustand** — single store; all mutations live here so the *closed loop* (a booking or
+- **zustand** (+ `persist`) — single store; all mutations live here so the *closed loop* (a booking or
   quiz feeding staff reach) is visible across every view
 - **framer-motion** — page transitions, scroll reveals, animated counters, toast
 - **GSAP + ScrollTrigger** — the scrubbed scroll journey on the landing page (fetched on
@@ -41,7 +42,10 @@ degrades to clean stacked, reveal-on-view sections on mobile and for
 |----------|--------|
 | Public | `/` landing · `/about` (live metrics + grounds carousel) · `/m/:machineId` (QR story per machine) · `/partner` · `/contact` · `/signin` · `/signup` |
 | Teacher / corporate | `/app` dashboard · `/app/hub` Education Hub · `/app/learn` (paid courses) · `/app/cart` · `/app/play` · `/app/book` · `/app/bookings` |
-| CoffeeBot staff | `/staff` overview · `/staff/plan` · `/staff/partners` · `/staff/grounds` · `/staff/reports` |
+| CoffeeBot staff | `/staff` overview · `/staff/plan` bookings & drying plan · `/staff/partners` · `/staff/grounds` grounds log · `/staff/reports` reports |
+
+Unknown URLs redirect to `/`. Signed-in users are redirected away from `/signin` and `/signup`,
+and anyone on the wrong side of the teacher/staff split is sent to their own dashboard.
 
 ### Key IA decisions (vs the prototype)
 1. Role-aware landing — staff land on Overview, orgs on Dashboard (not a shared carousel).
@@ -51,17 +55,29 @@ degrades to clean stacked, reveal-on-view sections on mobile and for
 5. The **closed loop is wired** — quizzes, missions and bookings all feed `reach`, visible on
    both the org dashboard and staff Overview.
 6. Booking gained a **review-before-confirm** step and cancel.
+7. The **Education Hub** (`/app/hub`) teaches sustainability, the circular economy and the coffee
+   lifecycle, with content tailored to the account role (teacher or workplace). Content lives in
+   `src/data/education.js`; it deliberately contains no statistics.
+8. Staff get a **Grounds log** (log and edit batches, filter by status, export CSV) and
+   **Reports** (CSV downloads, a printable sustainability impact report, and toggles for which
+   figures appear publicly on the About page).
 
 ## Structure
 ```
 src/
-  data/seed.js       products, activities, weeks, quizzes, missions, stories, seed state
+  data/seed.js       products, activities, weeks, quizzes, missions, stories, batches, seed state
+  data/orgs.js       seeded organisations, accounts, roles, password rules
+  data/pricing.js    course prices (placeholders)
+  data/company.js    company contact details
+  data/education.js  Education Hub learning content
   data/art.jsx       SVG artwork (products, cup, grounds pile, beans, logo)
-  lib/calc.js        weather → drying-capacity math (shared by org + staff)
+  data/hubArt.js     Education Hub illustrations
+  lib/calc.js        weather → drying-capacity and batch/usage maths (shared by org + staff)
+  lib/download.js    client-side CSV and text-file downloads
   store/useStore.js  zustand store + all mutations
   components/hero/   ScrollJourney (landing showpiece) + GroundsShowcase (About)
-  components/layout/ header (role-aware nav) + footer
-  components/ui/     Page transition, Counter, ToastHost
+  components/layout/ header (role-aware nav, cart) + footer
+  components/ui/     Page transition, Counter, ToastHost, charts, ClosedLoop, Marquee, Confetti, Icon
   pages/public|org|staff/
 ```
 
@@ -189,7 +205,9 @@ For anyone asking "how much of this actually works":
 
 ## Accounts and routing
 There is no backend for accounts yet. Organisations and accounts are seeded in `src/data/orgs.js` and
-kept in the browser's localStorage (`coffeebot-auth-v1`); passwords are salted and hashed
+kept in the browser's localStorage (`coffeebot-auth-v1`) along with the signed-in user, carts and
+purchases; operational data (bookings, batches, orders) lives in the shared store described above.
+Passwords are salted and hashed
 but this is **not** real security — move accounts and the role check to a server before launch.
 
 - Organisation type decides the role: `staff` → `/staff`, `school` → teacher, `company` → corporate (both `/app`).
