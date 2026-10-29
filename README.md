@@ -84,6 +84,30 @@ Setup (about five minutes):
 4. The first browser to open the app seeds the table from `src/data/seed.js`. Staff can put
    everything back to the seed figures with **Reports → Demo data → Reset**.
 
+### Joining an existing Supabase project (teammates)
+The project owner has already run `supabase/schema.sql`, so teammates only need the keys:
+
+1. Check out the branch and run `npm install`.
+2. Copy the template: `cp .env.example .env.local`.
+3. Fill in the two empty lines of `.env.local`, with no quotes and no spaces after the `=`:
+   ```
+   VITE_SUPABASE_URL=
+   VITE_SUPABASE_ANON_KEY=
+   ```
+4. Get both values from the project owner, either privately by message or by being invited
+   under Project Settings → Team, after which they are under Project Settings → API ("Project
+   URL" and the "anon public" key).
+5. Stop the dev server (Ctrl+C) and run `npm run dev` again. Vite only reads `.env.local` on start.
+6. Check the footer of any page. It should say **Live · shared data**. If it says **This
+   browser only**, the file is missing, misnamed, or the server was not restarted.
+
+Never commit `.env.local` (`.gitignore` already excludes it). If someone skips this, the app
+still runs, but they only see their own browser's data, so bookings and brews will not appear
+on anyone else's screen. The anon key is meant to ship to browsers, but the prototype policies
+let anyone holding it read and write every row, so share it only with the team and rotate it
+(Project Settings → API) after the demo. A brand-new Supabase project needs `supabase/schema.sql`
+run once in its SQL editor.
+
 ### Simulated IoT feed
 Four simulated machines live on the staff Overview under **Live from the machines**. A brew
 can come from three places, and every open dashboard updates within about a second:
