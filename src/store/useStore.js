@@ -9,6 +9,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { SEED, ACTS, WEEKS, MISSIONS } from '../data/seed';
 import { SHARED_KEYS, brew as brewCup } from '../lib/sync';
+import { MAX_PHOTO_BYTES, photoBytes } from '../lib/photo';
 import { kgFor } from '../lib/calc';
 import { COURSE_PRICES } from '../data/pricing';
 import {
@@ -305,6 +306,7 @@ export const useStore = create(persist((set, get) => ({
     if (used > dispatched) return { ok: false, error: `You can log at most ${dispatched} kg, the amount CoffeeBot sent.` };
     if (!(ppl > 0)) return { ok: false, error: 'Enter how many people took part.' };
     if (!photo) return { ok: false, error: 'Add a photo of the activity as evidence.' };
+    if (photoBytes(photo) > MAX_PHOTO_BYTES) return { ok: false, error: 'That photo is too large to store. Choose a smaller one.' };
     const residual = Math.round((dispatched - used) * 10) / 10;
     const date = new Date().toISOString().slice(0, 10);
     set((s) => ({

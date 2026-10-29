@@ -182,9 +182,15 @@ What changed:
    `src/lib/backend.js`, so the page renders before the sync library arrives, then goes live.
 5. **No layout shift while a page loads.** The lazy-route fallback holds the footer in place
    (story page cumulative layout shift 0.64 → 0.01).
+6. **Fonts served from our own origin.** Archivo and Figtree ship as two variable woff2 files
+   (55 KB together, latin only) in `public/fonts`, preloaded from `index.html`. That removes two
+   third-party hosts and a render-blocking stylesheet from every page load.
+7. **Session photos capped.** A teacher's evidence photo is shrunk on the device and re-shrunk
+   until it is under 60 KB (`src/lib/photo.js`), and the store refuses anything larger, so one
+   logged session cannot add megabytes to the shared bookings row every browser syncs.
 
-Still on the list: self-host the two Google Fonts, and give the browser-stored session photos
-a size cap in the shared row (they are already shrunk to about 15–40 KB each).
+Still on the list: an image CDN or object storage for photos if the platform ever holds more
+than a few hundred logged sessions, since they currently live inline in the bookings row.
 
 ## What is functional and what is conceptual
 For anyone asking "how much of this actually works":
