@@ -1,7 +1,30 @@
 .lf { display: flex; flex-direction: column; gap: var(--s4); }
 .lf-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; }
 .lf-total { font-size: 34px; }
-.lf-auto { display: inline-flex; align-items: center; gap: var(--s2); cursor: pointer; }
+.lf-sim {
+  display: inline-flex; align-items: center; gap: var(--s3); cursor: pointer; text-align: left;
+  padding: 8px 16px 8px 8px; border-radius: var(--r-pill); font: inherit; color: var(--ink);
+  background: var(--card); border: 1.5px solid var(--line);
+  transition: background var(--dur-fast), border-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
+}
+.lf-sim:hover { box-shadow: var(--sh-sm); }
+.lf-sim:active { transform: translateY(1px); }
+.lf-sim:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.lf-sim-icon {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--ink); color: var(--card);
+}
+.lf-sim-text { display: flex; flex-direction: column; line-height: 1.25; }
+.lf-sim-text .xs { color: var(--muted); }
+.lf-sim-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; }
+.lf-sim.on { background: var(--leaf-soft); border-color: var(--leaf); }
+.lf-sim.on .lf-sim-icon { background: var(--leaf); }
+.lf-sim.on .lf-sim-dot { background: var(--leaf); animation: lf-pulse 1.4s ease-out infinite; }
+@keyframes lf-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--leaf) 55%, transparent); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .lf-sim.on .lf-sim-dot { animation: none; } }
 .lf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--s3); }
 .lf-m { display: flex; flex-direction: column; gap: 2px; padding: var(--s3); border: 1px solid var(--line); border-radius: 12px; background: var(--paper, transparent); }
 .lf-n { font-size: 30px; line-height: 1.1; margin: 4px 0; display: inline-block; transform-origin: left; }

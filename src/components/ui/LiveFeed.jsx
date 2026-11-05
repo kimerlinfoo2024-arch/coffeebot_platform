@@ -18,18 +18,11 @@ export default function LiveFeed() {
   const state = useStore((s) => s);
   const live = liveSummary(state);
   const brew = useStore((s) => s.brew);
-  const [auto, setAuto] = useState(false);
+  const auto = useStore((s) => s.autoSim);
+  const setAuto = useStore((s) => s.setAutoSim);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
-  useEffect(() => {
-    if (!auto) return undefined;
-    const id = setInterval(() => {
-      const pick = liveSummary(useStore.getState()).machines;
-      brew(pick[Math.floor(Math.random() * pick.length)].id);
-    }, 2500);
-    return () => clearInterval(id);
-  }, [auto, brew]);
 
   return (
     <div className="lf">
@@ -38,10 +31,24 @@ export default function LiveFeed() {
           <b className="num lf-total">{live.cups.toLocaleString()}</b>
           <span className="small muted"> cups brewed since reset · about {fmt(live.cups * GROUNDS_PER_CUP)} kg of grounds</span>
         </div>
-        <label className="lf-auto">
-          <input type="checkbox" className="switch" checked={auto} onChange={(e) => setAuto(e.target.checked)} />
-          <span className="small">Auto-simulate machines</span>
-        </label>
+        <button
+          type="button"
+          className={`lf-sim ${auto ? 'on' : ''}`}
+          aria-pressed={auto}
+          onClick={() => setAuto(!auto)}
+          title={auto ? 'Stop the machines brewing' : 'Start the machines brewing on their own'}
+        >
+          <span className="lf-sim-icon" aria-hidden="true">
+            {auto
+              ? <svg viewBox="0 0 24 24" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" /></svg>
+              : <svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>}
+          </span>
+          <span className="lf-sim-text">
+            <b>{auto ? 'Simulation running' : 'Start simulation'}</b>
+            <span className="xs">{auto ? 'Click to stop · keeps going on other pages' : 'Machines brew on their own'}</span>
+          </span>
+          <span className="lf-sim-dot" aria-hidden="true" />
+        </button>
       </div>
       <div className="lf-grid">
         {live.machines.map((m) => (
