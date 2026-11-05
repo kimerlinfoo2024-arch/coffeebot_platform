@@ -56,6 +56,12 @@ export const useStore = create(persist((set, get) => ({
   ...structuredClone(SEED),
   sync: { backend: 'local', status: 'local', lastSync: null, error: null },
 
+  // --- machine simulator: runs from lib/automation.js, so it keeps going on any page (not saved across a refresh) ---
+  autoSim: false,
+  setAutoSim(on) {
+    set({ autoSim: on });
+  },
+
   showToast(text) {
     set({ toast: { text, id: Date.now() } });
   },

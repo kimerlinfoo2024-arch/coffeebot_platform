@@ -103,6 +103,8 @@ export const MACHINES = [
   { id: 'm4', name: 'NorthPoint library',    site: 'NorthPoint Campus',    source: 'NorthPoint Campus — library' },
 ];
 export const LIVE_KEY = (id) => `live_${id}`;
+export const AUTO_BATCH_CUPS = 25;  // a machine logs a collected batch every this many cups (about 0.5 kg)
+export const FEED_EVERY_CUPS = 10;  // and adds an activity-feed line every this many cups
 
 export const SEED = {
   batches: [
