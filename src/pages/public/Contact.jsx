@@ -23,7 +23,7 @@ export default function Contact() {
         <div>
           <span className="sticker-mini">Email us</span>
           <a className="contact-mail" href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
-          <p>Tell us your school or company and what you'd like to know. There's no form to fill in — an email is all we need.</p>
+          <p>Tell us your school or company and what you'd like to know. There's no form to fill in. An email is all we need.</p>
         </div>
         <a className="pill dark" href={`mailto:${COMPANY.email}?subject=${encodeURIComponent('Grounds Up enquiry')}`}>Write an email</a>
       </motion.div>

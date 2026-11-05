@@ -8,7 +8,7 @@ import { Donut, Ring } from '../../components/ui/charts';
 import { toCSV, downloadFile } from '../../lib/download';
 import './dashboard.css';
 
-const ACT_COLOR = { scrub: 'var(--brew)', soap: 'var(--amber)', candle: 'var(--teal)', planter: 'var(--leaf)', compost: 'var(--bad)', seeds: '#8A6A4A' };
+const ACT_COLOR = { scrub: 'var(--choc)', soap: 'var(--tan)', candle: 'var(--blue-deep)', planter: 'var(--blue)', compost: 'var(--choc-dark)', seeds: 'var(--beige-2)' };
 const ENGAGEMENT_GOAL = 10;
 
 const reveal = {
@@ -19,9 +19,9 @@ const reveal = {
 export default function Dashboard() {
   const user = useStore((s) => s.user);
   const bookings = useStore((s) => s.bookings);
-  const quizzesDone = useStore((s) => s.quizzesDone);
-  const missionsAssigned = useStore((s) => s.missionsAssigned);
+  const assignments = useStore((s) => s.assignments);
   const teacher = user.role === 'teacher';
+  const learners = teacher ? 'Students' : 'Colleagues';
 
   const mine = [...bookings.filter((b) => b.org === user.org)].sort((a, b) => a.week - b.week);
   const people = mine.reduce((a, b) => a + b.people, 0);
@@ -31,7 +31,12 @@ export default function Dashboard() {
   const byAct = {};
   mine.forEach((b) => { byAct[b.act] = (byAct[b.act] || 0) + b.kg; });
   const donut = Object.entries(byAct).map(([k, v]) => ({ name: ACTS[k].name, value: v, color: ACT_COLOR[k] || 'var(--brew)' }));
-  const engagement = quizzesDone + missionsAssigned;
+  // quizzes and missions this organisation has handed out, and how many people finished them
+  const ours = assignments.filter((a) => a.orgId === user.orgId);
+  const finished = (type) => ours.filter((a) => a.type === type).reduce((n, a) => n + a.completions.length, 0);
+  const quizzesDone = finished('quiz');
+  const missionsDone = finished('mission');
+  const engagement = quizzesDone + missionsDone;
 
   const record = mine.map((b) => ({
     id: b.id, week: WEEKS[b.week].w, course: ACTS[b.act].name,
@@ -43,7 +48,7 @@ export default function Dashboard() {
 
   const learnLinks = [
     { to: '/app/hub', icon: 'book', title: 'Education Hub', text: teacher ? 'Sustainability topics with classroom resources' : 'Sustainability topics with workplace scenarios' },
-    { to: '/app/play', icon: 'award', title: 'Quizzes & missions', text: 'Run a quiz or send a mission home' },
+    { to: '/app/play', icon: 'award', title: 'Quizzes & missions', text: teacher ? 'Assign a quiz or home mission to your class' : 'Assign a quiz or mission to your team' },
     { to: '/app/learn', icon: 'leaf', title: 'Browse courses', text: 'Hands-on activities made from grounds' },
   ];
 
@@ -53,7 +58,7 @@ export default function Dashboard() {
         <div className="stack db-head-text">
           <span className="eyebrow">{teacher ? 'Teacher dashboard' : 'Corporate dashboard'} · {user.org}</span>
           <h1>Welcome back, {user.name}</h1>
-          <p>Everything your group does here — booking activities, running quizzes, logging missions — feeds CoffeeBot's live impact figures.</p>
+          <p>Everything your {teacher ? 'class' : 'team'} does here (booked activities, quizzes and home missions) feeds CoffeeBot's live impact figures.</p>
         </div>
         <Link className="btn" to="/app/book">Book an activity <Icon name="arrowRight" size={16} /></Link>
       </div>
@@ -61,9 +66,12 @@ export default function Dashboard() {
       <div className="stack db">
         <motion.div {...reveal} className="stats">
           <div className="stat lead"><b className="num">{kg} kg</b><span className="lbl">Grounds your group has put to use</span></div>
-          <div className="stat"><b className="num">{people}</b><span className="lbl">People in your booked activities</span></div>
-          <div className="stat"><b className="num">{quizzesDone}</b><span className="lbl">Quizzes completed</span></div>
-          <div className="stat"><b className="num">{missionsAssigned}</b><span className="lbl">Home missions assigned</span></div>
+          <div className="stat">
+            <b className="num">{people}</b><span className="lbl">{learners} attending booked activities</span>
+            <span className="stat-help">Total headcount across every session you've booked</span>
+          </div>
+          <div className="stat"><b className="num">{quizzesDone}</b><span className="lbl">Quizzes finished by {learners.toLowerCase()}</span></div>
+          <div className="stat"><b className="num">{missionsDone}</b><span className="lbl">Home missions completed</span></div>
         </motion.div>
 
         <section>
@@ -88,7 +96,7 @@ export default function Dashboard() {
               <div className="db-foot">
                 {next ? (
                   <>
-                    <span><b className="num">{next.people}</b> people</span>
+                    <span><b className="num">{next.people}</b> {learners.toLowerCase()}</span>
                     <span><b className="num">{next.kg} kg</b> kit</span>
                   </>
                 ) : (
@@ -132,11 +140,11 @@ export default function Dashboard() {
               <div className="panel-head"><h3>Learning engagement</h3><span className="small muted">goal of {ENGAGEMENT_GOAL}</span></div>
               <div className="db-ring">
                 <Ring value={engagement} max={ENGAGEMENT_GOAL} label={engagement} sub="done" color="var(--teal)" />
-                <p className="small muted">Quizzes and missions your group has run — every one adds to CoffeeBot's reach.</p>
+                <p className="small muted">Quizzes and home missions your {learners.toLowerCase()} have finished from your links. Every one adds to CoffeeBot's reach.</p>
               </div>
               <div className="db-foot">
                 <span><b className="num">{quizzesDone}</b> quizzes</span>
-                <span><b className="num">{missionsAssigned}</b> missions</span>
+                <span><b className="num">{missionsDone}</b> missions</span>
               </div>
             </motion.div>
           </div>
@@ -152,7 +160,7 @@ export default function Dashboard() {
             {mine.length ? (
               <div className="scroll">
                 <table className="db-table">
-                  <thead><tr><th>Week</th><th>Course</th><th>Grounds</th><th className="r">Participants</th><th className="r">Kg reused</th></tr></thead>
+                  <thead><tr><th>Week</th><th>Course</th><th>Grounds</th><th className="r">{learners} attending</th><th className="r">Kg reused</th></tr></thead>
                   <tbody>
                     {record.map((r) => (
                       <tr key={r.id}><td>{r.week}</td><td>{r.course}</td><td className="small">{r.grounds}</td><td className="r">{r.people}</td><td className="r">{r.kg}</td></tr>
@@ -164,7 +172,7 @@ export default function Dashboard() {
                 </table>
               </div>
             ) : (
-              <p className="muted">No sessions yet — your record starts with your first booking.</p>
+              <p className="muted">No sessions yet. Your record starts with your first booking.</p>
             )}
           </motion.div>
         </section>

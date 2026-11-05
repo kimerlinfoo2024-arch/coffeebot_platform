@@ -8,6 +8,7 @@ import { Donut } from '../../components/ui/charts';
 import { useStore } from '../../store/useStore';
 import { machineStory, fmt } from '../../lib/calc';
 import { MACHINES, ACTS } from '../../data/seed';
+import { PALETTE } from '../../styles/palette';
 import './machine.css';
 
 const reveal = {
@@ -26,7 +27,7 @@ const ago = (t, now) => {
 function BoothCard({ machine, url }) {
   const [svg, setSvg] = useState('');
   useEffect(() => {
-    QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#2B1D14', light: '#0000' } })
+    QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: PALETTE.chocDark, light: '#0000' } })
       .then(setSvg).catch(() => setSvg(''));
   }, [url]);
   return (

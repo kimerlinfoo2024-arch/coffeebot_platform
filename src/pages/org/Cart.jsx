@@ -4,7 +4,7 @@ import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
 import { ACTS, COURSES } from '../../data/seed';
 import { COURSE_PRICES, PRICES_ARE_PLACEHOLDERS, money } from '../../data/pricing';
-import { ART, Svg } from '../../data/art';
+import { ProductArt } from '../../data/icons';
 import './courses.css';
 
 export default function Cart() {
@@ -60,7 +60,7 @@ export default function Cart() {
           <ul className="cart-list">
             {cart.map((k) => (
               <li key={k} className="card">
-                <div className="thumb"><Svg markup={ART[k]} /></div>
+                <div className="thumb"><ProductArt k={k} /></div>
                 <div className="cart-info">
                   <b>{ACTS[k].name}</b>
                   <span className="small muted">{ACTS[k].desc} · {COURSES[k].mins} min</span>

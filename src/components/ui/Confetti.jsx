@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 
-const COLORS = ['#6B4A2E', '#4C7A47', '#9A6414', '#24727A', '#E9A23B', '#A93C2B'];
+const COLORS = ['var(--choc)', 'var(--blue)', 'var(--tan)', 'var(--blue-deep)', 'var(--beige-2)', 'var(--choc-soft)'];
 const PIECES = Array.from({ length: 28 }, (_, i) => i);
 
 /* Fires a one-shot burst whenever `fire` (a changing key) is truthy/changes. */

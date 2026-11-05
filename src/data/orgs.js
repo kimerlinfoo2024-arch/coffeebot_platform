@@ -1,7 +1,7 @@
 /* ============================================================
    Organisations, roles and the rules that decide which dashboard
    an account reaches. This is the single place to configure
-   email-domain mapping — nothing else hardcodes domains.
+   email-domain mapping: nothing else hardcodes domains.
 
    There is no backend yet: organisations and accounts are seeded
    here and kept in the browser (see store/useStore.js). When a
@@ -9,21 +9,25 @@
    ============================================================ */
 
 /** organisation type → account role */
-export const ROLE_BY_ORG_TYPE = { staff: 'staff', school: 'teacher', company: 'corporate' };
+export const ROLE_BY_ORG_TYPE = { staff: 'staff', school: 'teacher', company: 'corporate', partner: 'partner' };
 
 /** role → where that role lands after logging in */
-export const ROLE_HOME = { staff: '/staff', teacher: '/app', corporate: '/app' };
+export const ROLE_HOME = { staff: '/staff', teacher: '/app', corporate: '/app', partner: '/partner-portal' };
 
-export const ROLE_LABEL = { staff: 'CoffeeBot staff', teacher: 'Teacher', corporate: 'Corporate' };
+export const ROLE_LABEL = { staff: 'CoffeeBot staff', teacher: 'Teacher', corporate: 'Corporate', partner: 'Reuse partner' };
+
+/** teachers and corporate users share the learning side (hub, courses, cart, bookings) */
+export const isLearner = (role) => role === 'teacher' || role === 'corporate';
 
 /** registered organisations and the email domains that belong to them */
 export const SEED_ORGS = [
   { id: 'coffeebot',  name: 'CoffeeBot',            type: 'staff',   domains: ['coffeebot.com'] },
   { id: 'greenridge', name: 'Greenridge Secondary', type: 'school',  domains: ['greenridge.edu.sg'] },
   { id: 'hartwell',   name: 'Hartwell Logistics',   type: 'company', domains: ['hartwell.com.sg'] },
+  { id: 'greenleaf',  name: 'Greenleaf Compost',    type: 'partner', domains: ['greenleafcompost.sg'] },
 ];
 
-/** demo accounts — opened from the buttons on the log-in page, no password */
+/** demo accounts: opened from the buttons on the log-in page, no password */
 export const SEED_ACCOUNTS = [
   { email: 'aisha.rahman@greenridge.edu.sg', name: 'Aisha',   orgId: 'greenridge', role: 'teacher',   demo: true },
   { email: 'daniel.tan@hartwell.com.sg',     name: 'Daniel',  orgId: 'hartwell',   role: 'corporate', demo: true },

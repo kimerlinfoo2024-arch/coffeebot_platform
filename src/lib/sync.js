@@ -20,7 +20,7 @@ import { MACHINES, LIVE_KEY } from '../data/seed';
 export const SHARED_KEYS = [
   'batches', 'usage', 'visibility', 'bookings', 'partners', 'requests', 'inbox', 'feed',
   'reach', 'quizzesDone', 'missionsAssigned', 'missionsCompleted', 'nextId',
-  'purchases', 'orders',
+  'purchases', 'orders', 'assignments',
   ...MACHINES.map((m) => LIVE_KEY(m.id)), // simulated machine brew counters
 ];
 
@@ -59,7 +59,7 @@ export async function brew(machineId) {
   const { data, error } = await supabase.rpc('brew', { machine: machineId });
   if (error) {
     const missing = /function .*brew/i.test(error.message) || error.code === 'PGRST202';
-    const msg = missing ? 'the brew function is not installed — run supabase/schema.sql' : error.message;
+    const msg = missing ? 'the brew function is not installed. Run supabase/schema.sql' : error.message;
     console.error('[sync] brew failed', error);
     return { ok: false, error: msg };
   }

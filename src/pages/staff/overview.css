@@ -1,4 +1,4 @@
-/* Staff overview — section rhythm and equal-height panel rows */
+/* Staff overview: section rhythm and equal-height panel rows */
 .stack.ov { gap: var(--s6); }
 .ov-head { margin-bottom: var(--s3); }
 .grid2.ov-row { align-items: stretch; }

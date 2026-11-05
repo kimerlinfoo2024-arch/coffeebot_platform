@@ -1,4 +1,4 @@
-/* Machine QR story page — public, phone-first (people scan it at the machine) */
+/* Machine QR story page: public, phone-first (people scan it at the machine) */
 .story { display: flex; flex-direction: column; gap: var(--s5); }
 .story-head p b { color: var(--ink); }
 .story-live { gap: var(--s2); margin-top: var(--s2); }
@@ -25,7 +25,7 @@
 .story-sessions img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-md); border: 1px solid var(--line); }
 .story-sessions figcaption { display: flex; flex-direction: column; gap: 2px; }
 
-/* booth card — the thing that gets printed and stuck on the machine */
+/* booth card: the thing that gets printed and stuck on the machine */
 .booth-card {
   display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: var(--s5); align-items: center;
   padding: var(--s5); border: 2px solid var(--ink); border-radius: var(--r-lg); background: var(--card-2);
@@ -41,7 +41,7 @@
   header, footer, .no-print, .story > :not(.story-booth) { display: none !important; }
   .story-booth { border: 0; box-shadow: none; padding: 0; }
   .story-booth .panel-head { display: none; }
-  .booth-card { grid-template-columns: 260px 1fr; border-color: #000; page-break-inside: avoid; }
+  .booth-card { grid-template-columns: 260px 1fr; border-color: var(--ink); page-break-inside: avoid; }
   .booth-qr { width: 260px; }
-  body { background: #fff; }
+  body { background: var(--white); }
 }

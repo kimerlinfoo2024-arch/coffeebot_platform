@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 /* ============================================================
    Lightweight SVG charts in the coffee palette.
-   StackedBars · Donut · Ring — all animate in on mount.
+   StackedBars · Donut · Ring: all animate in on mount.
    ============================================================ */
 
 const EASE = [0.22, 0.61, 0.36, 1];
@@ -78,7 +78,7 @@ export function Donut({ segments, size = 160, thickness = 22, centerLabel, cente
         {centerLabel != null && (
           <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', textAlign: 'center' }}>
             <div>
-              <div style={{ fontFamily: 'var(--display)', fontWeight: 900, fontSize: 26, lineHeight: 1 }}>{centerLabel}</div>
+              <div style={{ fontFamily: 'var(--display)', fontWeight: 800, fontSize: 26, lineHeight: 1 }}>{centerLabel}</div>
               {centerSub && <div className="xs muted">{centerSub}</div>}
             </div>
           </div>
@@ -108,7 +108,7 @@ export function Ring({ value, max = 100, size = 120, thickness = 12, color = 'va
       </svg>
       <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', textAlign: 'center' }}>
         <div>
-          <div style={{ fontFamily: 'var(--display)', fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{label}</div>
+          <div style={{ fontFamily: 'var(--display)', fontWeight: 800, fontSize: 22, lineHeight: 1 }}>{label}</div>
           {sub && <div className="xs muted">{sub}</div>}
         </div>
       </div>

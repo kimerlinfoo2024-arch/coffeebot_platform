@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { batchTotals } from '../../lib/calc';
-import { JCUP, JPILE, JSCRUB, BEAN, Svg } from '../../data/art';
+import { BEAN } from '../../data/art';
+import { IconImg } from '../../data/icons';
 import './scroll.css';
 
 /* gsap (115 kB) is only fetched when the pinned scroll animation will run: desktop, motion
@@ -21,8 +22,8 @@ const BEANS = [
 
 const SCENES = [
   { step: 'Step 1 · Brew', text: 'Every cup from a CoffeeBot machine leaves about 20 g of used grounds.' },
-  { step: 'Step 2 · Collect', text: 'CoffeeBot collects and dries only what upcoming activities need — around the weather.' },
-  { step: 'Step 3 · Transform', text: 'Those grounds become scrubs, soaps, candles and planters — made by schools and partners.' },
+  { step: 'Step 2 · Collect', text: 'CoffeeBot collects and dries only what upcoming activities need, planned around the weather.' },
+  { step: 'Step 3 · Transform', text: 'Those grounds become scrubs, soaps, candles and planters, made by schools and partners.' },
   { step: 'Step 4 · Impact', text: 'And every gram is counted as measurable sustainability impact.' },
 ];
 
@@ -103,19 +104,19 @@ export default function ScrollJourney() {
   }, [stacked]);
 
   if (stacked) {
-    const art = [JCUP, JPILE, JSCRUB, null];
-    const bg = ['var(--bg)', '#E7DED0', '#E5E3D6', 'var(--brew)'];
+    const art = ['cup', 'grounds', 'scrub', null];
+    const bg = ['var(--bg)', 'var(--blue-soft)', 'var(--cream-2)', 'var(--brew)'];
     return (
       <div className="journey-fallback" ref={root}>
         {SCENES.map((s, i) => (
           <motion.section
-            key={i} className="jscene" style={{ background: bg[i], color: i === 3 ? '#fff' : undefined }}
+            key={i} className="jscene" style={{ background: bg[i], color: i === 3 ? 'var(--white)' : undefined }}
             initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-15%' }} transition={{ duration: 0.5 }}
           >
-            {art[i] && <div className="art"><Svg markup={art[i]} /></div>}
+            {art[i] && <div className="art"><IconImg name={art[i]} /></div>}
             {i === 3 && (
-              <div className="row wrap" style={{ justifyContent: 'center', gap: 'var(--s6)', color: '#fff' }}>
+              <div className="row wrap" style={{ justifyContent: 'center', gap: 'var(--s6)', color: 'var(--white)' }}>
                 <div><b className="display-xl">{reusedKg.toLocaleString()} kg</b><div className="small">confirmed reused</div></div>
                 <div><b className="display-xl">{people.toLocaleString()}</b><div className="small">people reached</div></div>
               </div>
@@ -132,7 +133,7 @@ export default function ScrollJourney() {
       <div className="journey-track">
         <div className="journey-stage">
           <div className="journey-bg-css" />
-          <div className="journey-word" aria-hidden="true">GROUNDS</div>
+          <div className="journey-word" aria-hidden="true">COFFEEBOT</div>
 
           <div className="jbeans" aria-hidden="true">
             {BEANS.map((b, i) => (
@@ -141,9 +142,9 @@ export default function ScrollJourney() {
             ))}
           </div>
 
-          <div className="jlayer cup"><Svg markup={JCUP} /></div>
-          <div className="jlayer pile"><Svg markup={JPILE} /></div>
-          <div className="jlayer product"><Svg markup={JSCRUB} /></div>
+          <div className="jlayer cup"><IconImg name="cup" /></div>
+          <div className="jlayer pile"><IconImg name="grounds" /></div>
+          <div className="jlayer product"><IconImg name="scrub" /></div>
 
           <div className="jmetrics" aria-hidden="true">
             <div className="m"><b>{reusedKg.toLocaleString()} kg</b><span>confirmed reused</span></div>

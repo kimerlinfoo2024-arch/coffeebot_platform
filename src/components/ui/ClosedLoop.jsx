@@ -5,7 +5,7 @@ const NODES = [
   { pos: 'top', step: 'Step 1', t: 'Brew', s: '20 g per cup', color: 'var(--brew)' },
   { pos: 'right', step: 'Step 2', t: 'Collect', s: 'dried to weather', color: 'var(--teal)' },
   { pos: 'bottom', step: 'Step 3', t: 'Transform', s: 'into products', color: 'var(--amber)' },
-  { pos: 'left', step: 'Step 4', t: 'Impact', s: 'measured & shared', color: 'var(--leaf)' },
+  { pos: 'left', step: 'Step 4', t: 'Impact', s: 'measured & shared', color: 'var(--blue)' },
 ];
 
 export default function ClosedLoop() {

@@ -18,7 +18,7 @@ const reveal = {
 };
 
 const TOPICS = [
-  { tone: 'butter', icon: 'leaf',    title: 'what sustainability really means', by: 'Environment, people and economy — explained through one cup.' },
+  { tone: 'butter', icon: 'leaf',    title: 'what sustainability really means', by: 'Environment, people and economy, explained through one cup.' },
   { tone: 'rose',   icon: 'recycle', title: 'the circular economy, drawn as a loop', by: 'Take-make-dispose versus keeping materials in use.' },
   { tone: 'sky',    icon: 'cup',     title: 'the life of a coffee bean', by: 'Seven stages from farm to cup, and what happens after.' },
   { tone: 'sage',   icon: 'book',    title: 'for classrooms', by: 'Activities, discussion questions and lesson plans for teachers.' },
@@ -48,11 +48,9 @@ export default function Landing() {
           <span className="sticker">For teachers &amp; workplaces</span>
           <h1 className="join-title">join us</h1>
           <p>
-            Sign up with your school or work email to open the CoffeeBot Education Hub: sustainability,
+            Use Sign up at the top of the page with your school or work email to open the CoffeeBot Education Hub: sustainability,
             the circular economy and the life of a coffee bean, with hands-on activities you can book.
           </p>
-          <Link className="pill dark" to="/signup">Sign up</Link>
-          <p className="join-alt">Already have an account? <Link to="/signin">Log in</Link></p>
         </motion.div>
       </section>
 
@@ -82,7 +80,7 @@ export default function Landing() {
         <div className="page">
           <motion.div {...reveal} className="stack center" style={{ gap: 'var(--s2)', marginBottom: 'var(--s6)' }}>
             <span className="eyebrow" style={{ color: 'var(--amber-soft)' }}>Shared publicly</span>
-            <h2 style={{ fontSize: 'var(--t-xl)', color: '#fff' }}>What CoffeeBot's grounds have done so far</h2>
+            <h2 style={{ fontSize: 'var(--t-xl)', color: 'var(--white)' }}>What CoffeeBot's grounds have done so far</h2>
           </motion.div>
           <motion.div {...reveal} className="grid4">
             {[

@@ -1,8 +1,6 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import Page from '../../components/ui/Page';
 import { useStore } from '../../store/useStore';
-import { VISIBILITY_ITEMS } from '../../data/seed';
 import { batchTotals, pathways, usageTotals, educationByOrg, capTotal, circularity, liveSummary, withLive, fmt } from '../../lib/calc';
 import CircularityFunnel from '../../components/ui/CircularityFunnel';
 import { toCSV, downloadFile, today, BATCH_COLS } from '../../lib/download';
@@ -14,7 +12,7 @@ const reveal = {
 };
 
 export default function Reports() {
-  const { batches, usage: baseUsage, bookings, partners, reach, missionsCompleted, quizzesDone, visibility, setVisibility, resetDemoData, sync, ...rest } = useStore((s) => s);
+  const { batches, usage: baseUsage, bookings, partners, reach, missionsCompleted, quizzesDone, resetDemoData, sync, ...rest } = useStore((s) => s);
   const liveCups = liveSummary(rest).cups;
   const usage = withLive(baseUsage, liveCups);
 
@@ -25,7 +23,7 @@ export default function Reports() {
   const eduKg = edu.reduce((a, o) => a + o.kg, 0);
   const c = circularity(batches, usage);
   const capturePct = u.kg ? Math.round((t.logged / u.kg) * 100) : 0;
-  const period = `${baseUsage[0]?.w ?? ''} – ${baseUsage[baseUsage.length - 1]?.w ?? ''} 2026${liveCups ? ` plus ${liveCups} simulated live cups` : ''}`;
+  const period = `${baseUsage[0]?.w ?? ''} to ${baseUsage[baseUsage.length - 1]?.w ?? ''} 2026${liveCups ? ` plus ${liveCups} simulated live cups` : ''}`;
 
   const summaryRows = [
     ['Cups served', u.cups],
@@ -60,10 +58,10 @@ export default function Reports() {
       <div className="pagehead no-print">
         <span className="eyebrow">Sustainability reporting</span>
         <h1>Reports</h1>
-        <p>Preview the impact report, download the data behind it, and choose what appears on the public About page.</p>
+        <p>Preview the impact report and download the data behind it. These figures are for CoffeeBot staff; the public About page no longer shows them.</p>
       </div>
 
-      <div className="grid2 no-print" style={{ marginBottom: 'var(--s5)' }}>
+      <div className="no-print" style={{ marginBottom: 'var(--s5)' }}>
         <motion.div {...reveal} className="panel">
           <div className="panel-head"><h2>Downloads</h2></div>
           <div className="list">
@@ -86,22 +84,6 @@ export default function Reports() {
           </div>
         </motion.div>
 
-        <motion.div {...reveal} className="panel">
-          <div className="panel-head"><h2>Public visibility</h2><Link className="small" to="/about">View About page →</Link></div>
-          <p className="small muted">Choose which figures appear on the public About page. Changes apply straight away.</p>
-          <div className="list">
-            {VISIBILITY_ITEMS.map(([k, label]) => (
-              <div key={k} style={{ alignItems: 'center' }}>
-                <label htmlFor={`vis-${k}`} style={{ margin: 0, fontWeight: 400 }}>{label}</label>
-                <span className="row" style={{ gap: 'var(--s2)' }}>
-                  <span className={`tag ${visibility[k] ? 't-ok' : 't-gen'}`}>{visibility[k] ? 'Public' : 'Hidden'}</span>
-                  <input type="checkbox" id={`vis-${k}`} className="switch" checked={!!visibility[k]}
-                    onChange={(e) => setVisibility(k, e.target.checked)} />
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
 
       {/* ---- report preview (also what prints) ---- */}

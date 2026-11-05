@@ -1,5 +1,5 @@
 /* ============================================================
-   Domain calculations — the weather → drying-capacity logic.
+   Domain calculations: the weather → drying-capacity logic.
    Pure functions so both org and staff views share one source
    of truth.
    ============================================================ */
@@ -21,7 +21,7 @@ export const dryLeft = (bookings, i) => WEEKS[i].dryCap - dryUsed(bookings, i);
 /** total weekly partner capacity (kg) */
 export const capTotal = (partners) => partners.reduce((a, p) => a + p.cap, 0);
 
-/** kit size (kg) for a group of n people — min 2 kg, rounded to .5 */
+/** kit size (kg) for a group of n people: min 2 kg, rounded to .5 */
 export const kgFor = (n) => Math.max(2, Math.ceil(n * 0.1 * 2) / 2);
 
 /** can a group of `people` do activity `act` in week `i`? */
@@ -54,8 +54,8 @@ export function groundsTotals(bookings, partners) {
 
 /** colour per reuse pathway, shared by every chart that shows them */
 export const USE_COLOR = {
-  'Compost': 'var(--leaf)', 'Mushroom growing': 'var(--teal)', 'Activity kits': 'var(--brew)',
-  'Skincare': 'var(--amber)', 'Unassigned': 'var(--muted)', 'Landfill': 'var(--bad)',
+  'Compost': 'var(--blue)', 'Mushroom growing': 'var(--blue-deep)', 'Activity kits': 'var(--brew)',
+  'Skincare': 'var(--tan)', 'Unassigned': 'var(--beige-2)', 'Landfill': 'var(--bad)',
 };
 
 /** kg logged per reuse pathway → [{ name, value, color }] */
@@ -98,7 +98,8 @@ export function machineStory(state, machineId) {
   const m = MACHINES.find((x) => x.id === machineId);
   if (!m) return null;
   const live = state[LIVE_KEY(m.id)] || { cups: 0, recent: [] };
-  const batches = state.batches.filter((b) => b.source === m.source);
+  // records saved before 5 Nov 2026 used a long dash between site and place ("Site, place" now), so match both
+  const batches = state.batches.filter((b) => b.source.replace(/ [\u2013\u2014] /g, ', ') === m.source);
   const t = batchTotals(batches);
   const paths = pathways(batches.filter((b) => b.status !== 'Disposed' && b.use !== 'Landfill' && b.use !== 'Unassigned'));
   const sessions = state.bookings.filter((b) => b.outcome && batches.some((x) => x.id === b.batchId));
@@ -111,7 +112,7 @@ export function machineStory(state, machineId) {
 /** usage history plus the live feed as one extra period, so grounds generated keeps up with brewing */
 export const withLive = (usage, liveCups) => (liveCups > 0 ? [...usage, { w: 'Live', cups: liveCups }] : usage);
 
-/** Circularity Rate — the one headline reuse figure.
+/** Circularity Rate: the one headline reuse figure.
     rate = confirmed-reused kg / grounds generated (estimated from cups served).
     Only batches marked Reused count, reuse is capped at what was generated, and the
     unrecovered residual is always reported (never rounded up to 100%). */

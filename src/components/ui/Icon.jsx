@@ -1,4 +1,4 @@
-/* Line-icon set (lucide-style) — used instead of emoji across the platform. */
+/* Line-icon set (lucide-style): used instead of emoji across the platform. */
 const P = {
   recycle: ['M4 12a8 8 0 0 1 13-6l2 2', 'M20 12a8 8 0 0 1-13 6l-2-2', 'M19 4v4h-4', 'M5 20v-4h4'],
   cup: ['M5 8h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Z', 'M16 9h2a2 2 0 0 1 0 4h-2', 'M8 3v2', 'M11 3v2'],

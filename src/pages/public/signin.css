@@ -1,5 +1,5 @@
 /* ============================================================
-   Sign-in — centered card on a soft, slowly shifting coffee gradient
+   Sign-in: centered card on a soft, slowly shifting coffee gradient
    ============================================================ */
 .signin-wrap {
   min-height: calc(100vh - 66px);
@@ -50,7 +50,7 @@
 .signin-card input[type=password] {
   font: inherit; width: 100%; padding: 10px 12px;
   border-radius: var(--r-sm); border: 1px solid var(--line);
-  background: #fff; color: var(--ink);
+  background: var(--white); color: var(--ink);
 }
 .signin-org {
   display: flex; align-items: center; gap: var(--s2); font-size: var(--t-sm);
@@ -61,3 +61,16 @@
 .pw-rules li { display: flex; align-items: center; gap: 6px; }
 .pw-rules li.ok { color: var(--leaf); font-weight: 600; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* sign-up: school/workplace or reuse partner */
+.su-kind { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+.su-kind legend { font-weight: 600; font-size: var(--t-sm); margin-bottom: 4px; padding: 0; }
+.su-kind-opt {
+  display: flex; gap: var(--s2); align-items: flex-start; margin: 0; cursor: pointer;
+  border: 1.5px solid var(--line); border-radius: var(--r-sm); padding: 10px; background: var(--card-2);
+  transition: border-color var(--dur-fast), background var(--dur-fast);
+}
+.su-kind-opt.on { border-color: var(--ink); background: var(--blue-soft); }
+.su-kind-opt input { margin: 3px 0 0; accent-color: var(--choc); }
+.su-kind-opt > span { display: flex; flex-direction: column; gap: 2px; font-weight: 400; }
+@media (max-width: 420px) { .su-kind { grid-template-columns: 1fr; } }

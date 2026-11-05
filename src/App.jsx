@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useStore } from './store/useStore';
-import { ROLE_HOME } from './data/orgs';
+import { ROLE_HOME, isLearner } from './data/orgs';
 
 import Layout from './components/layout/Layout';
 import ToastHost from './components/ui/ToastHost';
@@ -18,6 +18,7 @@ const Contact = lazyPage(() => import('./pages/public/Contact'));
 const SignIn = lazyPage(() => import('./pages/public/SignIn'));
 const SignUp = lazyPage(() => import('./pages/public/SignUp'));
 const MachineStory = lazyPage(() => import('./pages/public/MachineStory'));
+const StudentPlay = lazyPage(() => import('./pages/public/StudentPlay'));
 
 const Dashboard = lazyPage(() => import('./pages/org/Dashboard'));
 const EducationHub = lazyPage(() => import('./pages/org/EducationHub'));
@@ -33,25 +34,27 @@ const Partners = lazyPage(() => import('./pages/staff/Partners'));
 const Grounds = lazyPage(() => import('./pages/staff/Grounds'));
 const Reports = lazyPage(() => import('./pages/staff/Reports'));
 
+const PartnerHome = lazyPage(() => import('./pages/partner/PartnerHome'));
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 }
 
-/** Route guard. `need` is 'staff' or 'learner' (teacher or corporate).
+/** Route guard. `need` is 'staff', 'partner' or 'learner' (teacher or corporate).
     Anyone on the wrong side is sent to their own dashboard. */
 function RequireRole({ need, children }) {
   const user = useStore((s) => s.user);
   if (!user) {
     // after signing out, this page is only still mounted for its exit
-    // transition — the browser has already moved on, so don't redirect
-    const stillHere = /^\/(app|staff)(\/|$)/.test(window.location.pathname);
+    // transition: the browser has already moved on, so don't redirect
+    const stillHere = /^\/(app|staff|partner-portal)(\/|$)/.test(window.location.pathname);
     return stillHere ? <Navigate to="/signin" replace /> : null;
   }
   const home = ROLE_HOME[user.role];
   if (!home) return <Navigate to="/signin" replace />;
-  const allowed = need === 'staff' ? user.role === 'staff' : user.role === 'teacher' || user.role === 'corporate';
+  const allowed = need === 'learner' ? isLearner(user.role) : user.role === need;
   if (!allowed) return <Navigate to={home} replace />;
   return children;
 }
@@ -81,6 +84,7 @@ export default function App() {
             <Route path="/signin" element={<GuestOnly><SignIn /></GuestOnly>} />
             <Route path="/signup" element={<GuestOnly><SignUp /></GuestOnly>} />
             <Route path="/m/:machineId" element={<MachineStory />} />  {/* QR on the machine opens this */}
+            <Route path="/play/:code" element={<StudentPlay />} />  {/* link a teacher shares with students */}
 
             {/* learning partners: teachers and corporate users */}
             <Route path="/app" element={<RequireRole need="learner"><Dashboard /></RequireRole>} />
@@ -90,6 +94,9 @@ export default function App() {
             <Route path="/app/book" element={<RequireRole need="learner"><Book /></RequireRole>} />
             <Route path="/app/cart" element={<RequireRole need="learner"><Cart /></RequireRole>} />
             <Route path="/app/bookings" element={<RequireRole need="learner"><MyBookings /></RequireRole>} />
+
+            {/* reuse partners */}
+            <Route path="/partner-portal" element={<RequireRole need="partner"><PartnerHome /></RequireRole>} />
 
             {/* staff */}
             <Route path="/staff" element={<RequireRole need="staff"><Overview /></RequireRole>} />

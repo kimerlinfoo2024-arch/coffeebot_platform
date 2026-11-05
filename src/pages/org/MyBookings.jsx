@@ -6,7 +6,7 @@ import { ACTS, WEEKS } from '../../data/seed';
 import { shrinkPhoto } from '../../lib/photo';
 import { fmt } from '../../lib/calc';
 
-/** log what happened at a session — reuse is capped at the dispatched kg, a photo is required,
+/** log what happened at a session: reuse is capped at the dispatched kg, a photo is required,
     and the unused remainder is shown as an explicit residual (never rounded up). */
 function OutcomeForm({ booking, dispatched, onDone }) {
   const logOutcome = useStore((s) => s.logOutcome);

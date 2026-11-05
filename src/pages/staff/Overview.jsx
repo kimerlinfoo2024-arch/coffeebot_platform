@@ -34,7 +34,7 @@ export default function Overview() {
       segments: [
         { name: 'Activities (dry)', value: +x.dry.toFixed(1), color: 'var(--brew)' },
         { name: 'Activities (wet)', value: +x.wet.toFixed(1), color: 'var(--teal)' },
-        { name: 'To partners', value: +x.part.toFixed(1), color: 'var(--leaf)' },
+        { name: 'To partners', value: +x.part.toFixed(1), color: 'var(--blue)' },
         { name: 'At risk', value: +x.risk.toFixed(1), color: 'var(--bad)' },
       ],
     };

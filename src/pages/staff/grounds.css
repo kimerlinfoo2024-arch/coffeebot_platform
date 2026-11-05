@@ -1,4 +1,4 @@
-/* Grounds log — batch table + sticky side panel */
+/* Grounds log: batch table + sticky side panel */
 .grounds-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: var(--s4); align-items: start; }
 .grounds-aside { position: sticky; top: 90px; }
 @media (max-width: 960px) {
@@ -17,12 +17,12 @@
 
 .subnav.status-pick { margin-bottom: 0; gap: 6px; }
 .subnav.status-pick button { padding: 5px 11px; }
-.status-pick button[aria-checked="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.status-pick button[aria-checked="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
 
 .grounds-side input[type=date] {
   font: inherit; width: 100%; padding: 9px 12px;
   border-radius: var(--r-sm); border: 1px solid var(--line);
-  background: #fff; color: var(--ink);
+  background: var(--white); color: var(--ink);
 }
 .grounds-side input[type=date]:hover { border-color: var(--brew); }
 .grounds-side textarea { min-height: 72px; }

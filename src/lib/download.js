@@ -1,5 +1,5 @@
 /* ============================================================
-   Client-side file downloads — CSV exports and text lesson
+   Client-side file downloads: CSV exports and text lesson
    plans. No backend: files are built in the browser.
    ============================================================ */
 

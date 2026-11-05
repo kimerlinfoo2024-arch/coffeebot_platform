@@ -1,14 +1,14 @@
 /* ============================================================
-   Seed data — carried from the prototype, lightly expanded.
+   Seed data: carried from the prototype, lightly expanded.
    Products map 1:1 to the four "dry" activities; compost + seeds
    are the two "wet" (no-drying) activities.
    ============================================================ */
 
 export const PRODUCTS = [
-  { k: 'scrub',   word: 'Scrub',   bg: '#E5E3D6', grams: 60,  act: 'scrub',   line: 'Exfoliating body scrub',             use: 'About 60 g of used grounds per jar' },
-  { k: 'soap',    word: 'Soap',    bg: '#E8E0D3', grams: 25,  act: 'soap',    line: 'Cold-process bar with ground coffee', use: 'About 25 g of used grounds per bar' },
-  { k: 'candle',  word: 'Candle',  bg: '#E7DED0', grams: 30,  act: 'candle',  line: 'Soy candle with a grounds top layer', use: 'About 30 g of used grounds per candle' },
-  { k: 'planter', word: 'Planter', bg: '#DEE3D4', grams: 120, act: 'planter', line: 'Moulded pot that feeds the plant',     use: 'About 120 g of used grounds per pot' },
+  { k: 'scrub',   word: 'Scrub',   bg: 'var(--cream-2)', grams: 60,  act: 'scrub',   line: 'Exfoliating body scrub',             use: 'About 60 g of used grounds per jar' },
+  { k: 'soap',    word: 'Soap',    bg: 'var(--beige)', grams: 25,  act: 'soap',    line: 'Cold-process bar with ground coffee', use: 'About 25 g of used grounds per bar' },
+  { k: 'candle',  word: 'Candle',  bg: 'var(--blue-soft)', grams: 30,  act: 'candle',  line: 'Soy candle with a grounds top layer', use: 'About 30 g of used grounds per candle' },
+  { k: 'planter', word: 'Planter', bg: 'var(--cream-2)', grams: 120, act: 'planter', line: 'Moulded pot that feeds the plant',     use: 'About 120 g of used grounds per pot' },
 ];
 
 export const ACTS = {
@@ -54,13 +54,16 @@ export const MISSIONS = [
   { t: 'Switch-off week',           who: 'Class or team',        icon: 'plug',   level: 'Medium', mins: '1 week',    d: 'Track how many devices are left on standby, then switch off at the wall for a week.' },
 ];
 
+/* Partner testimonials. PLACEHOLDERS: these quotes are written for layout only and
+   are labelled "Placeholder quote" on the page. Replace them with real partner quotes
+   (and set placeholder: false) before launch. */
 export const STORIES = [
-  { pic: 'compost', name: 'Greenleaf Compost', kind: 'Composting farm', since: 'Partner since 2025', kg: '35 kg a week', grounds: 'Fresh grounds',
-    quote: 'Coffee grounds are a steady source of nitrogen for our compost. Because pickups are on a fixed day, we plan our batches around them.' },
-  { pic: 'fungi', name: 'Urban Fungi Co', kind: 'Mushroom grower', since: 'Partner since 2026', kg: '15 kg a week', grounds: 'Fresh grounds',
-    quote: 'We grow oyster mushrooms on fresh grounds, so we need them within a day or two. Collecting straight from CoffeeBot works because nothing has to be dried.' },
-  { pic: 'soap', name: 'Kopi Skin Lab', kind: 'Skincare maker', since: 'Applying now', kg: '8 kg a week', grounds: 'Dried grounds',
-    quote: 'We only take dried, clean grounds. Knowing which batches are free of milk powder is what makes it possible for us to use them.' },
+  { pic: 'compost', name: 'Greenleaf Compost', kind: 'Composting farm', since: 'Partner since 2025', kg: '35 kg a week', grounds: 'Fresh grounds', placeholder: true,
+    quote: 'Coffee grounds are a steady source of nitrogen for our compost. Because pickups are on a fixed day, we plan our batches around them, and it has made our week far easier.' },
+  { pic: 'fungi', name: 'Urban Fungi Co', kind: 'Mushroom grower', since: 'Partner since 2026', kg: '15 kg a week', grounds: 'Fresh grounds', placeholder: true,
+    quote: 'We grow oyster mushrooms on fresh grounds, so we need them within a day or two. CoffeeBot gets them to us fresh every time, and the team is a pleasure to work with.' },
+  { pic: 'soap', name: 'Kopi Skin Lab', kind: 'Skincare maker', since: 'Partner 2024 to 2025', kg: '8 kg a week', grounds: 'Dried grounds', placeholder: true,
+    quote: 'We only take dried, clean grounds. Knowing exactly which batches were free of milk powder meant we could use every jar with confidence. We would happily partner again.' },
 ];
 
 /* ---- Courses: lesson plans behind each activity (Education partner view) ---- */
@@ -83,7 +86,7 @@ export const COURSES = {
 export const GROUNDS_PER_CUP = 0.02; // kg of used grounds per cup
 export const BATCH_STATUS = ['Collected', 'Drying', 'Dispatched', 'Reused', 'Disposed'];
 export const BATCH_USES = ['Compost', 'Mushroom growing', 'Activity kits', 'Skincare', 'Unassigned', 'Landfill'];
-export const BATCH_SOURCES = ['Hartwell Logistics — L3 pantry', 'Bayview Tower — lobby café', 'Greenridge Secondary — staff room', 'Maple Grove Secondary — canteen', 'NorthPoint Campus — library'];
+export const BATCH_SOURCES = ['Hartwell Logistics, L3 pantry', 'Bayview Tower, lobby café', 'Greenridge Secondary, staff room', 'Maple Grove Secondary, canteen', 'NorthPoint Campus, library'];
 
 /* ---- What the public About page may show (Reports → visibility) ---- */
 export const VISIBILITY_ITEMS = [
@@ -97,10 +100,10 @@ export const VISIBILITY_ITEMS = [
 /* ---- Machines (simulated IoT). Each machine owns one shared row, `live_<id>`, and is its only writer. ---- */
 /* `source` ties a machine to the grounds-log entries collected from it (see BATCH_SOURCES). */
 export const MACHINES = [
-  { id: 'm1', name: 'Hartwell L3 pantry',   site: 'Hartwell Logistics',   source: 'Hartwell Logistics — L3 pantry' },
-  { id: 'm2', name: 'Bayview lobby café',   site: 'Bayview Tower',        source: 'Bayview Tower — lobby café' },
-  { id: 'm3', name: 'Greenridge staff room', site: 'Greenridge Secondary', source: 'Greenridge Secondary — staff room' },
-  { id: 'm4', name: 'NorthPoint library',    site: 'NorthPoint Campus',    source: 'NorthPoint Campus — library' },
+  { id: 'm1', name: 'Hartwell L3 pantry',   site: 'Hartwell Logistics',   source: 'Hartwell Logistics, L3 pantry' },
+  { id: 'm2', name: 'Bayview lobby café',   site: 'Bayview Tower',        source: 'Bayview Tower, lobby café' },
+  { id: 'm3', name: 'Greenridge staff room', site: 'Greenridge Secondary', source: 'Greenridge Secondary, staff room' },
+  { id: 'm4', name: 'NorthPoint library',    site: 'NorthPoint Campus',    source: 'NorthPoint Campus, library' },
 ];
 export const LIVE_KEY = (id) => `live_${id}`;
 export const AUTO_BATCH_CUPS = 25;  // a machine logs a collected batch every this many cups (about 0.5 kg)
@@ -108,14 +111,14 @@ export const FEED_EVERY_CUPS = 10;  // and adds an activity-feed line every this
 
 export const SEED = {
   batches: [
-    { id: 301, date: '2026-09-14', source: 'Hartwell Logistics — L3 pantry',        kg: 22, partner: 'Greenleaf Compost', use: 'Compost',          status: 'Reused',     notes: 'Mixed batch (milk drinks) — compost only' },
-    { id: 302, date: '2026-09-15', source: 'Bayview Tower — lobby café',            kg: 15, partner: 'Urban Fungi Co',    use: 'Mushroom growing', status: 'Reused',     notes: 'Collected same day, fresh' },
-    { id: 303, date: '2026-09-21', source: 'Greenridge Secondary — staff room',     kg: 8,  partner: '',                  use: 'Activity kits',    status: 'Reused',     notes: 'Dried for Maple Grove scrub session' },
-    { id: 304, date: '2026-09-22', source: 'Maple Grove Secondary — canteen',       kg: 12, partner: '',                  use: 'Landfill',         status: 'Disposed',   notes: 'Mould after rain week — could not dry in time' },
-    { id: 305, date: '2026-09-28', source: 'Hartwell Logistics — L3 pantry',        kg: 30, partner: 'Greenleaf Compost', use: 'Compost',          status: 'Reused',     notes: '' },
-    { id: 306, date: '2026-10-02', source: 'NorthPoint Campus — library',           kg: 14, partner: 'Urban Fungi Co',    use: 'Mushroom growing', status: 'Dispatched', notes: 'Awaiting partner confirmation' },
-    { id: 307, date: '2026-10-05', source: 'Bayview Tower — lobby café',            kg: 10, partner: '',                  use: 'Activity kits',    status: 'Drying',     notes: 'Black coffee only — for 19 Oct kits' },
-    { id: 308, date: '2026-10-07', source: 'Greenridge Secondary — staff room',     kg: 9,  partner: '',                  use: 'Unassigned',       status: 'Collected',   notes: '' },
+    { id: 301, date: '2026-09-14', source: 'Hartwell Logistics, L3 pantry',        kg: 22, partner: 'Greenleaf Compost', use: 'Compost',          status: 'Reused',     notes: 'Mixed batch (milk drinks), compost only' },
+    { id: 302, date: '2026-09-15', source: 'Bayview Tower, lobby café',            kg: 15, partner: 'Urban Fungi Co',    use: 'Mushroom growing', status: 'Reused',     notes: 'Collected same day, fresh' },
+    { id: 303, date: '2026-09-21', source: 'Greenridge Secondary, staff room',     kg: 8,  partner: '',                  use: 'Activity kits',    status: 'Reused',     notes: 'Dried for Maple Grove scrub session' },
+    { id: 304, date: '2026-09-22', source: 'Maple Grove Secondary, canteen',       kg: 12, partner: '',                  use: 'Landfill',         status: 'Disposed',   notes: 'Mould after rain week, could not dry in time' },
+    { id: 305, date: '2026-09-28', source: 'Hartwell Logistics, L3 pantry',        kg: 30, partner: 'Greenleaf Compost', use: 'Compost',          status: 'Reused',     notes: '' },
+    { id: 306, date: '2026-10-02', source: 'NorthPoint Campus, library',           kg: 14, partner: 'Urban Fungi Co',    use: 'Mushroom growing', status: 'Dispatched', notes: 'Awaiting partner confirmation' },
+    { id: 307, date: '2026-10-05', source: 'Bayview Tower, lobby café',            kg: 10, partner: '',                  use: 'Activity kits',    status: 'Drying',     notes: 'Black coffee only, for 19 Oct kits' },
+    { id: 308, date: '2026-10-07', source: 'Greenridge Secondary, staff room',     kg: 9,  partner: '',                  use: 'Unassigned',       status: 'Collected',   notes: '' },
   ],
   usage: [
     { w: '14 Sep', cups: 3850 },
@@ -135,8 +138,8 @@ export const SEED = {
     { name: 'Urban Fungi Co',    kind: 'Mushroom growing',     cap: 15, wet: true },
   ],
   requests: [
-    { id: 101, name: 'Bloom Community Garden', kind: 'Compost or gardening', cap: 15, wet: true,  by: 'Public partner form' },
-    { id: 102, name: 'Kopi Skin Lab',          kind: 'Skincare or soap',     cap: 8,  wet: false, by: 'Public partner form' },
+    { id: 101, name: 'Bloom Community Garden', kind: 'Compost or gardening', cap: 15, wet: true,  by: 'hello@bloomgarden.sg', sent: '2026-10-02' },
+    { id: 102, name: 'Kopi Skin Lab',          kind: 'Skincare or soap',     cap: 8,  wet: false, by: 'team@kopiskinlab.com', sent: '2026-10-09' },
   ],
   inbox: [{ from: 'Riverside Primary', topic: 'A booking', text: 'Can we add 5 more students to our compost session?' }],
   feed: [
@@ -148,6 +151,7 @@ export const SEED = {
   quizzesDone: 0,
   missionsAssigned: 0,
   missionsCompleted: 0,
+  assignments: [],  // quizzes and home missions teachers have handed out (see pages/org/Play.jsx)
   nextId: 400,
 };
 

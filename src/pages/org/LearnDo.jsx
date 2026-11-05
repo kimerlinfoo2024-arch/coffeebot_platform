@@ -5,7 +5,7 @@ import Icon from '../../components/ui/Icon';
 import { useStore } from '../../store/useStore';
 import { ACTS, COURSES } from '../../data/seed';
 import { COURSE_PRICES, COURSE_FIT, PURCHASE_INCLUDES, PRICES_ARE_PLACEHOLDERS, money } from '../../data/pricing';
-import { ART, Svg } from '../../data/art';
+import { ProductArt } from '../../data/icons';
 import { toCSV, downloadFile } from '../../lib/download';
 import './courses.css';
 
@@ -19,7 +19,7 @@ function lessonPlan(k) {
   const a = ACTS[k];
   const c = COURSES[k];
   return [
-    `CoffeeBot · Grounds Up — Lesson plan`,
+    `CoffeeBot · Grounds Up: Lesson plan`,
     ``,
     a.name.toUpperCase(),
     `${c.level} · ${c.mins} minutes · ${a.wet ? 'Fresh (wet) grounds, no drying' : 'Dried grounds'}${a.grams ? ` · about ${a.grams} g per item` : ''}`,
@@ -81,7 +81,7 @@ export default function LearnDo() {
           return (
             <motion.article key={k} {...reveal} transition={{ ...reveal.transition, delay: i * 0.05 }} className="card course">
               <div className="thumb">
-                <Svg markup={ART[k]} />
+                <ProductArt k={k} alt={v.name} />
                 <span className={`course-flag ${isOwned ? 'owned' : ''}`}>{isOwned ? 'Purchased' : 'Paid course'}</span>
               </div>
               <h2>{v.name}</h2>

@@ -2,19 +2,19 @@
    Global state (Zustand). Holds the auth session, the shared
    operational data (bookings / partners / requests / reach),
    and the toast queue. All mutations live here so the closed
-   loop — a school's booking or quiz feeding the staff reach —
+   loop: a school's booking or quiz feeding the staff reach : 
    is visible across every view.
    ============================================================ */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { SEED, ACTS, WEEKS, MISSIONS } from '../data/seed';
+import { SEED, ACTS, WEEKS, MISSIONS, QUIZZES } from '../data/seed';
 import { SHARED_KEYS, brew as brewCup } from '../lib/sync';
 import { MAX_PHOTO_BYTES, photoBytes } from '../lib/photo';
 import { kgFor } from '../lib/calc';
 import { COURSE_PRICES } from '../data/pricing';
 import {
   SEED_ORGS, SEED_ACCOUNTS, ROLE_BY_ORG_TYPE, ROLE_HOME, PERSONAL_DOMAINS,
-  parseEmail, findOrgByDomain, orgTypeForDomain, passwordOk,
+  parseEmail, findOrgByDomain, orgTypeForDomain, passwordOk, isLearner,
 } from '../data/orgs';
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -87,11 +87,11 @@ export const useStore = create(persist((set, get) => ({
       return {
         ok: false, next: 'signup',
         error: known && known.type !== 'staff'
-          ? `There is no account for that email yet. ${known.name} is already registered — sign up to join it.`
+          ? `There is no account for that email yet. ${known.name} is already registered. Sign up to join it.`
           : 'There is no account for that email. Check the address, or sign up first.',
       };
     }
-    if (account.demo) return { ok: false, error: 'That is a demo account — open it with the demo buttons below.' };
+    if (account.demo) return { ok: false, error: 'That is a demo account. Open it with the demo buttons below.' };
     if (!password) return { ok: false, error: 'Enter your password.' };
     if ((await hashPassword(password, account.salt)) !== account.hash) {
       return { ok: false, error: 'That email and password do not match.' };
@@ -99,15 +99,17 @@ export const useStore = create(persist((set, get) => ({
     return get().openSession(account);
   },
 
-  /** demo accounts only — no password */
+  /** demo accounts only: no password */
   signInDemo(email) {
     const account = get().accounts.find((a) => a.email === email && a.demo);
     if (!account) return { ok: false, error: 'That demo account is not available.' };
     return get().openSession(account);
   },
 
-  /** create an account instantly. The role is derived from the organisation, never chosen. */
-  async signUp({ name, orgName, email, password }) {
+  /** create an account instantly. The role is derived from the organisation, never chosen.
+      `kind` only matters for a new organisation: 'partner' registers a reuse partner;
+      otherwise the email domain decides between school and company. */
+  async signUp({ name, orgName, email, password, kind }) {
     const e = parseEmail(email);
     if (!name.trim()) return { ok: false, error: 'Add your name.' };
     if (!e) return { ok: false, error: 'Enter a full email address, like name@school.edu.sg.' };
@@ -127,8 +129,9 @@ export const useStore = create(persist((set, get) => ({
     }
     let nextOrgs = orgs;
     if (!org) {
-      if (!orgName.trim()) return { ok: false, error: 'Add the name of your school or company.' };
-      org = { id: `org-${Date.now().toString(36)}`, name: orgName.trim(), type: orgTypeForDomain(e.domain), domains: [e.domain] };
+      if (!orgName.trim()) return { ok: false, error: 'Add the name of your organisation.' };
+      const type = kind === 'partner' ? 'partner' : orgTypeForDomain(e.domain);
+      org = { id: `org-${Date.now().toString(36)}`, name: orgName.trim(), type, domains: [e.domain] };
       nextOrgs = [...orgs, org];
     }
     const salt = newSalt();
@@ -151,7 +154,7 @@ export const useStore = create(persist((set, get) => ({
 
   addToCart(course) {
     const { user, carts, purchases } = get();
-    if (!user || user.staff || !ACTS[course]) return;
+    if (!user || !isLearner(user.role) || !ACTS[course]) return;
     const mine = carts[user.email] || [];
     // a course is bought once per organisation, so it can't be added twice
     if (mine.includes(course) || (purchases[user.orgId] || []).includes(course)) return;
@@ -165,12 +168,12 @@ export const useStore = create(persist((set, get) => ({
     set({ carts: { ...carts, [user.email]: (carts[user.email] || []).filter((k) => k !== course) } });
   },
 
-  /** Confirm the order. No payment is taken — there is no payment provider yet.
+  /** Confirm the order. No payment is taken: there is no payment provider yet.
       The order is recorded and the courses unlock for the whole organisation. */
   checkout() {
     const { user, carts, purchases, orders, nextId } = get();
     const items = (carts[user?.email] || []).filter((k) => !(purchases[user.orgId] || []).includes(k));
-    if (!user || user.staff || !items.length) return null;
+    if (!user || !isLearner(user.role) || !items.length) return null;
     const lines = items.map((k) => ({ course: k, name: ACTS[k].name, price: COURSE_PRICES[k] }));
     const order = {
       id: nextId, org: user.org, orgId: user.orgId, by: user.email, lines,
@@ -215,44 +218,61 @@ export const useStore = create(persist((set, get) => ({
     get().showToast('Booking cancelled. The drying plan has freed up that capacity.');
   },
 
-  /** assign a home mission to your group */
-  assignMission(i) {
+  /** teacher or corporate user hands a quiz or home mission to a class or team.
+      Returns the assignment; its `code` makes the link students open (/play/<code>). */
+  assign(type, index, group) {
+    const { user, nextId, assignments } = get();
+    if (!user || !isLearner(user.role)) return null;
+    const item = type === 'quiz' ? QUIZZES[index] : MISSIONS[index];
+    if (!item) return null;
+    let code;
+    do { code = Math.random().toString(36).slice(2, 8); } while (assignments.some((a) => a.code === code));
+    const a = {
+      id: nextId, code, type, index, title: item.t, group: group.trim() || (user.role === 'teacher' ? 'My class' : 'My team'),
+      orgId: user.orgId, org: user.org, by: user.email, created: new Date().toISOString().slice(0, 10), open: true, completions: [],
+    };
+    set((s) => ({
+      assignments: [a, ...s.assignments],
+      ...(type === 'mission' ? { missionsAssigned: s.missionsAssigned + 1 } : {}),
+      feed: [`${user.org} assigned "${item.t}" to ${a.group}`, ...s.feed],
+      nextId: nextId + 1,
+    }));
+    return a;
+  },
+  /** stop (or restart) accepting completions on an assignment's link */
+  setAssignmentOpen(id, open) {
     const { user } = get();
-    set((s) => ({
-      missionsAssigned: s.missionsAssigned + 1,
-      feed: [`${user.org} assigned "${MISSIONS[i].t}"`, ...s.feed],
-    }));
-    get().showToast('Assigned. Your group sees it in their app.');
+    set((s) => ({ assignments: s.assignments.map((a) => (a.id === id && a.orgId === user?.orgId ? { ...a, open } : a)) }));
   },
-
-  /** record a mission reported complete — adds families to reach */
-  completeMission() {
+  /** a student finishes an assigned quiz or mission from the shared link (no account needed).
+      Feeds the same reach counters the staff dashboard reads. */
+  completeAssignment(code, { name, score, total }) {
+    const a = get().assignments.find((x) => x.code === code);
+    if (!a || !a.open) return false;
+    const entry = { name: (name || '').trim().slice(0, 40) || 'Anonymous', at: new Date().toISOString(), ...(a.type === 'quiz' ? { score, total } : {}) };
     set((s) => ({
-      missionsCompleted: s.missionsCompleted + 1,
-      reach: { ...s.reach, families: s.reach.families + 1 },
-      feed: [`A family completed a home mission`, ...s.feed],
+      assignments: s.assignments.map((x) => (x.code === code ? { ...x, completions: [...x.completions, entry] } : x)),
+      ...(a.type === 'quiz'
+        ? { quizzesDone: s.quizzesDone + 1, reach: { ...s.reach, people: s.reach.people + 1 } }
+        : { missionsCompleted: s.missionsCompleted + 1, reach: { ...s.reach, families: s.reach.families + 1 } }),
+      feed: [a.type === 'quiz'
+        ? `A student from ${a.org} finished “${a.title}” (${score}/${total})`
+        : `A family from ${a.org} completed “${a.title}”`, ...s.feed],
     }));
-    get().showToast('Logged. That counts towards CoffeeBot’s family reach.');
+    return true;
   },
-
-  /** record a finished quiz — feeds the staff reach counter */
-  recordQuiz(title, score, total) {
-    const { user } = get();
-    set((s) => ({
-      quizzesDone: s.quizzesDone + 1,
-      reach: { ...s.reach, people: s.reach.people + 1 },
-      feed: [`${user.org} completed the quiz “${title}” (${score}/${total})`, ...s.feed],
-    }));
-  },
-
-  /** public partner request */
-  addPartnerRequest({ name, kind, cap: c, wet }) {
+  /** partner request, sent from the partner dashboard. Only signed-in partner accounts may send one.
+      NOTE: this check runs in the browser; the database must enforce it too (see README). */
+  addPartnerRequest({ kind, cap: c, wet, note }) {
     const { user, nextId } = get();
+    if (user?.role !== 'partner') return false;
+    const name = user.org;
     set((s) => ({
-      requests: [...s.requests, { id: nextId, name, kind, cap: c, wet, by: user ? user.email : 'Public partner form' }],
+      requests: [...s.requests, { id: nextId, name, kind, cap: c, wet, note, by: user.email, orgId: user.orgId, sent: new Date().toISOString().slice(0, 10) }],
       feed: [`New partner request from ${name}`, ...s.feed],
       nextId: nextId + 1,
     }));
+    return true;
   },
 
   /** staff approves a partner request → capacity joins the drying plan */
@@ -335,7 +355,7 @@ export const useStore = create(persist((set, get) => ({
     return { ok: true };
   },
 
-  /** patch a batch — status, use, partner or notes */
+  /** patch a batch: status, use, partner or notes */
   updateBatch(id, patch) {
     set((s) => ({ batches: s.batches.map((b) => (b.id === id ? { ...b, ...patch } : b)) }));
   },

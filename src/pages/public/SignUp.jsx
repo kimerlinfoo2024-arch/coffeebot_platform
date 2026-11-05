@@ -15,7 +15,7 @@ export default function SignUp() {
   const signUp = useStore((s) => s.signUp);
   const orgs = useStore((s) => s.orgs);
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', orgName: '', email: '', password: '', confirm: '' });
+  const [form, setForm] = useState({ kind: 'learn', name: '', orgName: '', email: '', password: '', confirm: '' });
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setErr(null); };
@@ -48,18 +48,30 @@ export default function SignUp() {
         <div>
           <h1>Sign up for Grounds Up</h1>
           <p className="muted small" style={{ marginTop: 6 }}>
-            For teachers and workplace teams. Use your school or work email — it decides which learning hub you get.
+            For teachers, workplace teams and reuse partners. Use your school or work email, as it decides which dashboard you get.
           </p>
         </div>
 
         <form className="stack" style={{ gap: 'var(--s3)' }} noValidate onSubmit={submit}>
+          <fieldset className="su-kind">
+            <legend>I'm signing up as</legend>
+            {[
+              ['learn', 'A school or workplace', 'Education Hub, courses and activities'],
+              ['partner', 'A reuse partner', 'Cafés, farms and makers who take used grounds'],
+            ].map(([k, label, hint]) => (
+              <label key={k} className={`su-kind-opt ${form.kind === k ? 'on' : ''}`}>
+                <input type="radio" name="suKind" value={k} checked={form.kind === k} onChange={set('kind')} />
+                <span><b>{label}</b><span className="xs muted">{hint}</span></span>
+              </label>
+            ))}
+          </fieldset>
           <div className="field">
             <label htmlFor="suName">Your name</label>
             <input type="text" id="suName" autoComplete="given-name" value={form.name} onChange={set('name')} />
           </div>
           <div className="field">
-            <label htmlFor="suEmail">School or work email</label>
-            <input type="email" id="suEmail" placeholder="name@school.edu.sg" autoComplete="email"
+            <label htmlFor="suEmail">{form.kind === 'partner' ? 'Work email' : 'School or work email'}</label>
+            <input type="email" id="suEmail" placeholder={form.kind === 'partner' ? 'name@yourbusiness.com' : 'name@school.edu.sg'} autoComplete="email"
               value={form.email} onChange={set('email')} />
           </div>
           {joinable ? (
@@ -69,7 +81,7 @@ export default function SignUp() {
             </div>
           ) : (
             <div className="field">
-              <label htmlFor="suOrg">School or company name</label>
+              <label htmlFor="suOrg">{form.kind === 'partner' ? 'Business or group name' : 'School or company name'}</label>
               <input type="text" id="suOrg" autoComplete="organization" value={form.orgName} onChange={set('orgName')} />
             </div>
           )}
@@ -83,7 +95,7 @@ export default function SignUp() {
                 return (
                   <li key={label} className={ok ? 'ok' : ''}>
                     <Icon name={ok ? 'check' : 'x'} size={13} strokeWidth={3} />
-                    {label}<span className="sr-only">{ok ? ' — met' : ' — not met yet'}</span>
+                    {label}<span className="sr-only">{ok ? ': met' : ': not met yet'}</span>
                   </li>
                 );
               })}

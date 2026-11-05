@@ -59,7 +59,7 @@ export default function Book() {
       <div className="pagehead">
         <span className="eyebrow">Book an activity</span>
         <h1>Set up a hands-on session</h1>
-        <p>Coffee-ground activities are booked ahead so CoffeeBot prepares only the grounds you need. Quizzes and missions don't need booking — run them any time.</p>
+        <p>Coffee-ground activities are booked ahead so CoffeeBot prepares only the grounds you need. Quizzes and missions don't need booking. Run them any time.</p>
       </div>
 
       <div className="grid2">
@@ -83,7 +83,7 @@ export default function Book() {
 
           <h2 style={{ marginTop: 'var(--s3)' }}>2. How many people?</h2>
           <div className="field" style={{ maxWidth: 220 }}>
-            <label htmlFor="ppl">Number of people (5–60)</label>
+            <label htmlFor="ppl">Number of people (5 to 60)</label>
             <input type="number" id="ppl" min="5" max="60" value={people} onChange={(e) => changePeople(e.target.value)} />
           </div>
 
@@ -113,7 +113,7 @@ export default function Book() {
               <div><span>Type</span><span className={`tag ${a.wet ? 't-wet' : 't-dry'}`}>{a.wet ? 'Wet · no drying' : 'Dried grounds'}</span></div>
               <div><span>People</span><b className="num">{people}</b></div>
               <div><span>Kit size</span><b className="num">{kg} kg</b></div>
-              <div><span>Week</span><b>{week === null ? '—' : `Week of ${WEEKS[week].w}`}</b></div>
+              <div><span>Week</span><b>{week === null ? 'Not chosen yet' : `Week of ${WEEKS[week].w}`}</b></div>
             </div>
             <button className="btn block" disabled={week === null} onClick={confirm}>
               {week === null ? 'Pick a week to continue' : `Confirm booking`}

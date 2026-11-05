@@ -1,24 +1,41 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { ART, BEAN, Svg } from '../../data/art';
+import { BEAN } from '../../data/art';
+import { PRODUCT_IMG } from '../../data/icons';
 import './showcase.css';
 
 /* What used grounds can become. In each case the grounds are one
-   ingredient among others — the captions say so on purpose. */
+   ingredient among others: the captions say so on purpose.
+   `img` is the product drawing (transparent WebP) in /public/products.
+   If a file is missing, the slide shows a placeholder naming it. */
 const SLIDES = [
-  { k: 'scrub', word: 'Scrub', bg: '#E9B79A', title: 'Body scrub',
+  { k: 'scrub', word: 'Scrub', bg: 'var(--beige)', img: PRODUCT_IMG.scrub, title: 'Body scrub',
     text: 'Dried grounds are the exfoliating part of a scrub, mixed with an oil and sugar.' },
-  { k: 'soap', word: 'Soap', bg: '#B9D3A4', title: 'Soap bar',
+  { k: 'soap', word: 'Soap', bg: 'var(--blue)', img: PRODUCT_IMG.soap, title: 'Soap bar',
     text: 'Grounds are stirred into a soap base to give the bar a gentle scrubbing texture.' },
-  { k: 'candle', word: 'Candle', bg: '#F1CE86', title: 'Candle',
+  { k: 'candle', word: 'Candle', bg: 'var(--beige-2)', img: PRODUCT_IMG.candle, title: 'Candle',
     text: 'A layer of dried grounds decorates a wax candle. The wax, not the grounds, does the burning.' },
-  { k: 'planter', word: 'Planter', bg: '#A9D2CB', title: 'Planter pot',
-    text: 'Grounds are pressed with a binder such as paper pulp or clay to form a small pot.' },
-  { k: 'compost', word: 'Compost', bg: '#C9BEE8', title: 'Compost',
+  { k: 'planter', word: 'Planter', bg: 'var(--blue-soft)', img: PRODUCT_IMG.planter, title: 'Grounds pot',
+    text: 'Grounds are pressed with a binder such as paper pulp or clay to form a small plant pot.' },
+  { k: 'compost', word: 'Compost', bg: 'var(--cream-2)', img: PRODUCT_IMG.compost, title: 'Compost',
     text: 'Fresh grounds go into compost as one part of a mix with drier material like leaves.' },
 ];
 
-/* floating beans — a different scatter per slide, like the reference */
+/** the product photo, or a labelled placeholder until the file exists */
+function ProductImage({ slide }) {
+  const [missing, setMissing] = useState(false);
+  if (missing) {
+    return (
+      <div className="show-ph" role="img" aria-label={slide.title}>
+        <span>Photo coming soon</span>
+        <code>public{slide.img}</code>
+      </div>
+    );
+  }
+  return <img src={slide.img} alt={slide.title} onError={() => setMissing(true)} draggable="false" />;
+}
+
+/* floating beans: a different scatter per slide, like the reference */
 const SCATTER = [
   [{ l: 14, t: 16, s: 9, r: -30 }, { l: 76, t: 12, s: 7, r: 40 }, { l: 84, t: 58, s: 10, r: 15 }, { l: 6, t: 60, s: 15, r: -12, blur: true }],
   [{ l: 20, t: 10, s: 8, r: 25 },  { l: 82, t: 20, s: 9, r: -20 }, { l: 70, t: 66, s: 7, r: 60 }, { l: 4, t: 54, s: 16, r: 30, blur: true }],
@@ -27,7 +44,7 @@ const SCATTER = [
 
 const EASE = [0.76, 0, 0.24, 1];
 const DUR = 0.85;
-const HOLD = 4500; // ms each product stays on screen while playing
+const HOLD = 3500; // ms each product stays on screen; it then moves on by itself, like an ad
 
 function Slide({ slide, index, dir, animate }) {
   const beans = SCATTER[index % SCATTER.length];
@@ -56,7 +73,7 @@ function Slide({ slide, index, dir, animate }) {
       <motion.div className="show-product"
         initial={animate ? { x: dir * 120, rotate: dir * 8, opacity: 0 } : false} animate={{ x: 0, rotate: 0, opacity: 1 }}
         transition={{ duration: DUR, ease: EASE, delay: 0.05 }}>
-        <Svg markup={ART[slide.k]} />
+        <ProductImage slide={slide} />
       </motion.div>
     </motion.div>
   );
@@ -76,16 +93,16 @@ export default function GroundsShowcase() {
     if (e.key === 'ArrowLeft') step(-1);
   };
 
-  /* Autoplay: runs while the carousel is on screen, and waits while the
-     visitor is hovering, tabbing through it, or has the tab in the background.
+  /* Autoplay: keeps moving on by itself while the carousel is on screen, like an ad,
+     even under the mouse. It waits only while a keyboard user is tabbing through it
+     or the browser tab is in the background, and the pause button stops it.
      Off by default for reduced-motion visitors, who can still start it. */
   const root = useRef(null);
   const inView = useInView(root, { amount: 0.5 });
   const [playing, setPlaying] = useState(!reduce);
-  const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
   const [tabVisible, setTabVisible] = useState(true);
-  const running = playing && inView && tabVisible && !hover && !focus;
+  const running = playing && inView && tabVisible && !focus;
 
   useEffect(() => {
     const onVis = () => setTabVisible(!document.hidden);
@@ -101,7 +118,6 @@ export default function GroundsShowcase() {
 
   return (
     <section className="show" ref={root} aria-roledescription="carousel" aria-label="What used coffee grounds can become" onKeyDown={onKey}
-      onPointerEnter={(e) => { if (e.pointerType === 'mouse') setHover(true); }} onPointerLeave={() => setHover(false)}
       onFocus={(e) => setFocus(e.target.matches(':focus-visible'))} onBlur={() => setFocus(false)}>
       <motion.div className="show-stage" onPanEnd={(e, info) => { if (Math.abs(info.offset.x) > 60) step(info.offset.x < 0 ? 1 : -1); }}>
         {/* the outgoing slide stays underneath while the new one wipes over it */}

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Page from '../../components/ui/Page';
 import Icon from '../../components/ui/Icon';
 import { useStore } from '../../store/useStore';
-import { AUDIENCE, SUSTAINABILITY, CIRCULAR, LIFECYCLE, TEACHER, CORPORATE } from '../../data/education';
+import { HUB, TEACHER, CORPORATE } from '../../data/education';
 import { downloadFile } from '../../lib/download';
 import { Svg } from '../../data/art';
 import { HUB_HERO, PILLAR_ART, MODEL_ART, STAGE_ART, CLASSROOM, OFFICE } from '../../data/hubArt';
@@ -56,45 +56,43 @@ const InfoCards = ({ items, cols = 3 }) => (
   </div>
 );
 
-function Sustainability({ role }) {
-  const S = SUSTAINABILITY;
+function Sustainability({ S }) {
   return (
     <>
-      <TopicIntro eyebrow="Topic 1 · Sustainability" lead={S.definition} detail={S.detail} />
+      <TopicIntro eyebrow={S.eyebrow} lead={S.definition} detail={S.detail} />
 
-      <Section title="The three dimensions" note="A choice is only sustainable when it works for all three.">
+      <Section title={S.pillarsTitle} note={S.pillarsNote}>
         <div className="grid3 hub-cards">
           {S.pillars.map((p) => (
             <div key={p.k} className={`card hub-pillar acc-${p.accent}`}>
               <Svg markup={PILLAR_ART[p.k]} className="hub-art" />
               <h3>{p.name}</h3>
               <p className="small">{p.what}</p>
-              <p className="small hub-coffee"><b>In a cup of coffee:</b> {p.coffee}</p>
+              <p className="small hub-coffee"><b>{S.coffeeLabel}</b> {p.coffee}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      <Section title="Why it matters, every day">
+      <Section title={S.whyTitle}>
         <InfoCards items={S.why} />
       </Section>
 
-      <Section title={role === 'teacher' ? 'Bringing it into the classroom' : 'Applying it at work'}>
-        <Checklist items={S.apply[role]} />
+      <Section title={S.applyTitle}>
+        <Checklist items={S.apply} />
       </Section>
     </>
   );
 }
 
-function Circular({ role }) {
-  const C = CIRCULAR;
+function Circular({ C }) {
   const [model, setModel] = useState('linear');
   const m = C.models[model];
   return (
     <>
-      <TopicIntro eyebrow="Topic 2 · Circular economy" lead={C.definition} />
+      <TopicIntro eyebrow={C.eyebrow} lead={C.definition} />
 
-      <Section title="Linear or circular?" note="Switch between the two to compare."
+      <Section title={C.modelsTitle} note={C.modelsNote}
         action={(
           <div className="subnav" role="tablist" aria-label="Economy model" style={{ margin: 0 }}>
             {Object.entries(C.models).map(([k, v]) => (
@@ -115,25 +113,25 @@ function Circular({ role }) {
               </ol>
               {model === 'circular' && <div className="flow-return" aria-hidden="true"><span>back into use</span></div>}
               <p>{m.text}</p>
-              <p className="small hub-coffee"><b>With coffee:</b> {m.coffee}</p>
+              <p className="small hub-coffee"><b>{C.coffeeLabel}</b> {m.coffee}</p>
             </motion.div>
           </AnimatePresence>
         </div>
       </Section>
 
-      <Section title="Four principles">
+      <Section title={C.principlesTitle}>
         <div className="grid2 hub-cards">
           {C.principles.map((p) => (
             <div key={p.name} className="card">
               <div className="row"><span className="hub-ico sm"><Icon name={p.icon} size={20} /></span><h3>{p.name}</h3></div>
               <p className="small">{p.text}</p>
-              <p className="small hub-coffee"><b>With coffee:</b> {p.coffee}</p>
+              <p className="small hub-coffee"><b>{C.coffeeLabel}</b> {p.coffee}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      <Section title="What used coffee grounds can become">
+      <Section title={C.groundsTitle}>
         <div className="panel">
           <div className="list">
             {C.grounds.map(([h, t]) => <div key={h} className="hub-row"><b>{h}</b><span className="small muted">{t}</span></div>)}
@@ -142,26 +140,25 @@ function Circular({ role }) {
         </div>
       </Section>
 
-      <Section title={role === 'teacher' ? 'Where students can see it' : 'Where it applies in a business'}>
-        <InfoCards items={C.apply[role]} />
+      <Section title={C.applyTitle}>
+        <InfoCards items={C.apply} />
       </Section>
     </>
   );
 }
 
-function Lifecycle() {
+function Lifecycle({ L }) {
   const [i, setI] = useState(0);
-  const s = LIFECYCLE[i];
-  const last = LIFECYCLE.length - 1;
+  const STAGES = L.stages;
+  const s = STAGES[i];
+  const last = STAGES.length - 1;
   return (
     <>
-      <TopicIntro eyebrow="Topic 3 · Life of a coffee bean"
-        lead="A coffee bean passes through seven stages, from the farm to your cup and beyond."
-        detail="Pick a stage to see what it uses, where waste appears and how the loop could close." />
+      <TopicIntro eyebrow={L.eyebrow} lead={L.lead} detail={L.detail} />
 
       <div className="panel">
         <ol className="journey-steps">
-          {LIFECYCLE.map((st, idx) => (
+          {STAGES.map((st, idx) => (
             <li key={st.name} className={idx < i ? 'done' : ''}>
               <button aria-current={idx === i ? 'step' : undefined} onClick={() => setI(idx)}>
                 <span className="dot"><Icon name={st.icon} size={18} /></span>
@@ -175,7 +172,7 @@ function Lifecycle() {
           <motion.div key={i} {...fade} className="stage">
             <div className="stage-head">
               <div>
-                <span className="eyebrow">Stage {i + 1} of {LIFECYCLE.length}</span>
+                <span className="eyebrow">Stage {i + 1} of {STAGES.length}</span>
                 <h2 className="stage-title">{s.name}</h2>
                 <p>{s.what}</p>
               </div>
@@ -183,12 +180,13 @@ function Lifecycle() {
             </div>
             <div className="stage-grid">
               <div className="card soft">
-                <h3>What it uses</h3>
+                <h3>{L.labels.uses}</h3>
                 <div className="row wrap" style={{ gap: 6 }}>{s.uses.map((u) => <span key={u} className="tag t-gen">{u}</span>)}</div>
               </div>
-              <div className="card soft"><h3>Possible impact</h3><p className="small">{s.impact}</p></div>
-              <div className="card stage-waste"><h3>Waste at this stage</h3><p className="small">{s.waste}</p></div>
-              <div className="card stage-loop"><h3>Closing the loop</h3><p className="small">{s.circular}</p></div>
+              <div className="card soft"><h3>{L.labels.impact}</h3><p className="small">{s.impact}</p></div>
+              <div className="card stage-waste"><h3>{L.labels.waste}</h3><p className="small">{s.waste}</p></div>
+              <div className="card stage-loop"><h3>{L.labels.circular}</h3><p className="small">{s.circular}</p></div>
+              {s.business && <div className="card stage-biz"><h3>{L.labels.business}</h3><p className="small">{s.business}</p></div>}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -204,7 +202,7 @@ function Lifecycle() {
 
 function teacherSheet() {
   return [
-    'CoffeeBot · Grounds Up — Classroom discussion sheet', '',
+    'CoffeeBot · Grounds Up: Classroom discussion sheet', '',
     'DISCUSSION QUESTIONS',
     ...TEACHER.questions.flatMap(([q, note], i) => [`${i + 1}. ${q}`, `   Teacher note: ${note}`, '']),
     'SHORT ACTIVITIES',
@@ -218,8 +216,8 @@ function ForTeachers() {
   const [open, setOpen] = useState(null);
   return (
     <>
-      <TopicIntro eyebrow="For your classroom"
-        lead="Ready-to-run activities and questions for a lesson on coffee and waste."
+      <TopicIntro eyebrow="Classroom corner"
+        lead="Ready-to-go activities and questions for a fun lesson on coffee and waste."
         detail="Use them after any of the three topics, or on their own." />
       <Svg markup={CLASSROOM} className="hub-art hub-banner" />
 
@@ -245,7 +243,7 @@ function ForTeachers() {
           {TEACHER.questions.map(([q, note], i) => (
             <div key={q} className="qa-item">
               <button aria-expanded={open === i} aria-controls={`qa-${i}`} onClick={() => setOpen(open === i ? null : i)}>
-                <span>{q}</span><span className="qa-sign" aria-hidden="true">{open === i ? '–' : '+'}</span>
+                <span>{q}</span><span className="qa-sign" aria-hidden="true">{open === i ? '−' : '+'}</span>
               </button>
               {open === i && <p id={`qa-${i}`} className="small"><b>Teacher note:</b> {note}</p>}
             </div>
@@ -324,19 +322,14 @@ function ForCorporate() {
 
 export default function EducationHub() {
   const role = useStore((s) => s.user.role);
-  const A = AUDIENCE[role];
+  const A = HUB[role];  // each audience gets its own copy (data/education.js)
   const [tab, setTab] = useState(0);
   const tabsRef = useRef(null);
-  const TABS = [
-    ['Sustainability', 'What it means'],
-    ['Circular economy', 'Linear vs circular'],
-    ['Life of a coffee bean', 'Seven stages'],
-    [A.tab, role === 'teacher' ? 'Activities & questions' : 'Practices & scenarios'],
-  ];
+  const TABS = A.tabs;
   const TOPICS = [
-    <Sustainability role={role} />,
-    <Circular role={role} />,
-    <Lifecycle />,
+    <Sustainability S={A.sustainability} />,
+    <Circular C={A.circular} />,
+    <Lifecycle L={A.lifecycle} />,
     role === 'teacher' ? <ForTeachers /> : <ForCorporate />,
   ];
 

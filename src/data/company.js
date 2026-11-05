@@ -1,5 +1,5 @@
 /* ============================================================
-   CoffeeBot company details — shown on the Contact page and footer.
+   CoffeeBot company details: shown on the Contact page and footer.
    Taken from the contact details published on coffeebot.com.my
    (checked October 2026). Update here if they change.
    ============================================================ */

@@ -18,7 +18,7 @@ export default function Partners() {
       <div className="pagehead">
         <span className="eyebrow">Operations</span>
         <h1>Partners</h1>
-        <p>Approving a request adds its weekly capacity to the drying plan.</p>
+        <p>Partners send requests from their partner dashboard. Approving one adds its weekly capacity to the drying plan.</p>
       </div>
 
       <div className="grid2">
@@ -42,7 +42,8 @@ export default function Partners() {
               <div key={p.id} className="card">
                 <div className="spread"><b>{p.name}</b><span className={`tag ${p.wet ? 't-wet' : 't-dry'}`}>{p.wet ? 'Takes wet' : 'Needs dry'}</span></div>
                 <span className="small muted">{p.kind}. From {p.by}</span>
-                <span className="small">Up to {p.cap} kg a week</span>
+                <span className="small">Up to {p.cap} kg a week{p.sent ? ` · sent ${p.sent}` : ''}</span>
+                {p.note && <span className="small">“{p.note}”</span>}
                 <button className="btn ok sm" onClick={() => approveRequest(p.id)}>Approve</button>
               </div>
             )) : <p className="small muted">No pending requests.</p>}

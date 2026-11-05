@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
-import { ROLE_HOME, ROLE_LABEL } from '../../data/orgs';
+import { ROLE_HOME, ROLE_LABEL, isLearner } from '../../data/orgs';
 import Icon from '../ui/Icon';
 import '../../pages/org/courses.css';
 
@@ -18,6 +18,11 @@ const ORG_NAV = [
   ['/app/play', 'Quizzes & Missions'],
   ['/app/bookings', 'My Bookings'],
 ];
+const PARTNER_NAV = [
+  ['/partner-portal', 'Partner dashboard'],
+  ['/about', 'About'],
+  ['/contact', 'Contact'],
+];
 const STAFF_NAV = [
   ['/staff', 'Overview'],
   ['/staff/grounds', 'Grounds Log'],
@@ -29,7 +34,7 @@ const STAFF_NAV = [
 export default function Header() {
   const user = useStore((s) => s.user);
   const signOut = useStore((s) => s.signOut);
-  const cartCount = useStore((s) => (s.user && !s.user.staff ? (s.carts[s.user.email] || []).length : 0));
+  const cartCount = useStore((s) => (s.user && isLearner(s.user.role) ? (s.carts[s.user.email] || []).length : 0));
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -48,7 +53,7 @@ export default function Header() {
     return () => document.removeEventListener('click', onClick);
   }, []);
 
-  const nav = !user ? PUBLIC_NAV : user.staff ? STAFF_NAV : ORG_NAV;
+  const nav = !user ? PUBLIC_NAV : user.staff ? STAFF_NAV : user.role === 'partner' ? PARTNER_NAV : ORG_NAV;
   const home = !user ? '/' : ROLE_HOME[user.role];
 
   return (
@@ -61,7 +66,7 @@ export default function Header() {
 
         <nav className="nav" aria-label="Main">
           {nav.map(([to, label]) => (
-            <NavLink key={to} to={to} end={to === '/' || to === '/app' || to === '/staff'}
+            <NavLink key={to} to={to} end={to === '/' || to === '/app' || to === '/staff' || to === '/partner-portal'}
               className={({ isActive }) => (isActive ? 'active' : '')}>
               {label}
             </NavLink>
@@ -76,7 +81,7 @@ export default function Header() {
             </>
           ) : (
             <>
-            {!user.staff && (
+            {isLearner(user.role) && (
               <Link className="cart-link" to="/app/cart" aria-label={`Cart, ${cartCount} course${cartCount === 1 ? '' : 's'}`}>
                 <Icon name="cart" size={18} />
                 {cartCount > 0 && <span className="count" aria-hidden="true">{cartCount}</span>}

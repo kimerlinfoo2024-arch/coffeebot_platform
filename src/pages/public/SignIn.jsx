@@ -44,7 +44,7 @@ export default function SignIn() {
         <div>
           <h1>Log in to Grounds Up</h1>
           <p className="muted small" style={{ marginTop: 6 }}>
-            One log-in for CoffeeBot staff, teachers and workplaces. Your account decides which dashboard you see.
+            One log-in for CoffeeBot staff, teachers, workplaces and reuse partners. Your account decides which dashboard you see.
           </p>
         </div>
 

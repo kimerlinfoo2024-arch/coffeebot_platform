@@ -1,38 +1,66 @@
 /* ============================================================
-   CoffeeBot · Grounds Up — Design Tokens
-   Palette carried from the prototype (sage-cream + coffee browns),
-   extended into a full system for the rebuild.
+   CoffeeBot · Grounds Up: Design Tokens
+   Palette follows "The Fluffy & Co." branding reference:
+   powder blue, warm cream and beige, dark chocolate brown,
+   with white as an accent. This file is the only place colours
+   are defined; everything else uses these variables.
+   (SVG illustrations can't read CSS variables, so the same
+   values are mirrored in src/styles/palette.js: keep in sync.)
    ============================================================ */
 :root {
   color-scheme: light;
 
+  /* --- palette --- */
+  --white:      #FFFFFF;
+  --cream-0:    #FBF8F1;  /* lightest cream: cards */
+  --cream:      #F4EFE3;  /* page ground */
+  --cream-2:    #ECE6D6;
+  --beige:      #E0D0B9;
+  --beige-2:    #D3BFA2;
+  --tan:        #B8946E;
+  --tan-dark:   #8A6440;
+  --blue-soft:  #D7E7F4;
+  --blue:       #A4C7E4;  /* powder / baby blue */
+  --blue-2:     #7FA9CF;
+  --blue-deep:  #3F6D96;  /* blue that is dark enough for text */
+  --choc-soft:  #8C6E5A;
+  --choc:       #624635;  /* chocolate */
+  --choc-2:     #4E3628;
+  --choc-dark:  #33241A;  /* darkest chocolate: text */
+  --cocoa:      #8E4A35;  /* reddish chocolate, for errors only */
+  --cb-orange:  #DC4700;  /* CoffeeBot orange, used in the illustrated icons */
+  --cocoa-soft: #F1DFD3;
+
   /* --- surface --- */
-  --bg:        #E5E3D6;  /* sage-cream ground */
-  --bg-soft:   #EEECE2;
-  --card:      #FAF9F4;
-  --card-2:    #FFFFFF;
-  --line:      #D3CFBF;
-  --line-soft: #E4E1D4;
+  --bg:        var(--cream);
+  --bg-soft:   var(--cream-2);
+  --card:      var(--cream-0);
+  --card-2:    var(--white);
+  --line:      #DCD0BC;
+  --line-soft: #E8E0D0;
 
   /* --- ink --- */
-  --ink:    #2B1D14;
-  --ink-2:  #4A3626;
-  --muted:  #6F655A;
+  --ink:    var(--choc-dark);
+  --ink-2:  var(--choc-2);
+  --muted:  #76604F;
+  --on-dark:       var(--cream);   /* text on chocolate */
+  --on-dark-muted: var(--beige-2);
 
   /* --- coffee --- */
-  --brew:      #6B4A2E;
-  --bean:      #4E321E;
-  --bean-dark: #2F1D10;
+  --brew:      var(--choc);
+  --bean:      var(--choc-2);
+  --bean-dark: var(--choc-dark);
 
-  /* --- accents --- */
-  --leaf:      #4C7A47;  --leaf-soft: #DCE6D3;
-  --amber:     #9A6414;  --amber-soft:#F2E3C4;
-  --teal:      #24727A;  --teal-soft: #D5E8E7;
-  --bad:       #A93C2B;  --bad-soft:  #F4DCD4;
+  /* --- roles (kept under their old names so components don't change) --- */
+  --leaf:  var(--blue-deep);  --leaf-soft:  var(--blue-soft);   /* done / positive */
+  --amber: var(--tan-dark);   --amber-soft: var(--beige);        /* dried / highlight */
+  --teal:  var(--blue-deep);  --teal-soft:  var(--blue-soft);    /* fresh / focus */
+  --bad:   var(--cocoa);      --bad-soft:   var(--cocoa-soft);   /* errors */
 
   /* --- type --- */
-  --display: 'Archivo', 'Arial Black', system-ui, sans-serif;
-  --body:    'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;  /* headings */
+  --body:    'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;   /* body text */
+  --label:   var(--body);  /* small spaced capitals (eyebrows, kickers) */
 
   --t-xs:  12px;
   --t-sm:  13.5px;
@@ -49,15 +77,16 @@
   /* --- radius --- */
   --r-sm: 8px;  --r-md: 12px; --r-lg: 18px; --r-xl: 26px; --r-pill: 999px;
 
-  /* --- shadow --- */
-  --sh-sm:  0 2px 8px rgba(43,29,20,.10);
-  --sh-md:  0 8px 24px rgba(43,29,20,.14);
-  --sh-lg:  0 26px 50px rgba(43,29,20,.22);
+  /* --- shadow (chocolate-tinted) --- */
+  --shadow-rgb: 51 36 26;
+  --sh-sm:  0 2px 8px rgb(var(--shadow-rgb) / .10);
+  --sh-md:  0 8px 24px rgb(var(--shadow-rgb) / .14);
+  --sh-lg:  0 26px 50px rgb(var(--shadow-rgb) / .22);
   --sh-hard:0 3px 0 var(--ink);
 
   /* --- glass (used sparingly, with fallback) --- */
   --glass-bg:     color-mix(in srgb, var(--card) 72%, transparent);
-  --glass-border: color-mix(in srgb, #fff 40%, var(--line));
+  --glass-border: color-mix(in srgb, var(--white) 40%, var(--line));
   --glass-blur:   14px;
 
   /* --- motion --- */
