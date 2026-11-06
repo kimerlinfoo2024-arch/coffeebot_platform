@@ -28,7 +28,9 @@
 }
 
 .jlayer { position: absolute; top: 50%; left: 50%; z-index: 3; will-change: transform, opacity; }
-.jlayer.cup     { width: clamp(150px, 20vw, 230px); }
+/* the cup drawing sits left of its own frame (the sparkle lines on the right pad it out),
+   so nudge it right by the offset of its body from the frame's centre (about 11% of its width) */
+.jlayer.cup     { width: clamp(150px, 20vw, 230px); margin-left: calc(clamp(150px, 20vw, 230px) * 0.11); }
 .jlayer.pile    { width: clamp(220px, 32vw, 380px); opacity: 0; }
 .jlayer.product { width: clamp(170px, 24vw, 270px); opacity: 0; filter: drop-shadow(0 26px 22px rgb(var(--shadow-rgb) / .22)); }
 .jlayer svg, .jlayer img, .jlayer > span { display: block; width: 100%; height: auto; }
