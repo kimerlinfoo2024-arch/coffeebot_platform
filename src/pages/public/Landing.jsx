@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ScrollJourney from '../../components/hero/ScrollJourney';
@@ -30,8 +29,6 @@ export default function Landing() {
   const people = useStore((s) => s.reach.people);
   const families = useStore((s) => s.reach.families);
   const partners = useStore((s) => s.partners.length);
-  const rail = useRef(null);
-  const slide = (d) => rail.current?.scrollBy({ left: d * 300, behavior: 'smooth' });
 
   return (
     <div>
@@ -57,7 +54,7 @@ export default function Landing() {
       {/* what's inside */}
       <section className="inside">
         <motion.h2 {...reveal} className="inside-title">What you'll learn inside the Education Hub</motion.h2>
-        <div className="rail" ref={rail} tabIndex={0} role="group" aria-label="Education Hub topics">
+        <div className="rail" role="group" aria-label="Education Hub topics">
           {TOPICS.map((t) => (
             <article key={t.title} className={`topic ${t.tone}`}>
               <span className="topic-ico"><Icon name={t.icon} size={22} /></span>
@@ -66,10 +63,6 @@ export default function Landing() {
               <p>{t.by}</p>
             </article>
           ))}
-        </div>
-        <div className="rail-nav">
-          <button onClick={() => slide(-1)} aria-label="Scroll topics left">←</button>
-          <button onClick={() => slide(1)} aria-label="Scroll topics right">→</button>
         </div>
       </section>
 

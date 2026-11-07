@@ -100,7 +100,7 @@ export const HUB_HERO = svg('0 0 1000 300', 'Coffee beans growing, brewed into a
   <clipPath id="hb-heroclip"><rect width="1000" height="300" rx="24"/></clipPath>
   <g clip-path="url(#hb-heroclip)">
     <rect width="1000" height="300" fill="url(#hb-hero)"/>
-    <text x="500" y="222" text-anchor="middle" font-family="Poppins,Arial" font-weight="800" font-size="200" letter-spacing="-8" fill="#33241A" opacity=".06">GROUNDS UP</text>
+    <text x="500" y="210" text-anchor="middle" font-family="Poppins,Arial" font-weight="800" font-size="150" letter-spacing="-3" fill="#33241A" opacity=".06">COFFEEBOT</text>
     <ellipse cx="500" cy="160" rx="330" ry="108" fill="none" stroke="#624635" stroke-width="3.5" stroke-dasharray="2 13" stroke-linecap="round" opacity=".45"/>
     ${tip(500, 52, 0)}${tip(500, 268, 180)}
     ${plant(170, 228, 0.95)}
