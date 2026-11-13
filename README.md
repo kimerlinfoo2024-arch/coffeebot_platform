@@ -30,15 +30,78 @@ Rebuilt from a single-file HTML prototype into React + Vite, with a few delibera
 - **qrcode**: the printable booth card on each machine's story page
 - **Plain CSS** with design tokens (`src/styles/tokens.css`), one stylesheet per page or component group
 
-## Run
-```bash
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # production build -> dist/
-npm run preview  # serve the production build locally
-```
+## Contents
+[Installation](#installation) · [Commands](#commands) · [Configuration](#configuration) ·
+[Troubleshooting](#troubleshooting) · [How it fits together](#how-it-fits-together) ·
+[Information architecture](#information-architecture) · [Structure](#structure) ·
+[Shared data (Supabase)](#shared-data-supabase) · [Quizzes and missions](#quizzes-and-missions) ·
+[Green computing](#green-computing) · [Functional vs conceptual](#what-is-functional-and-what-is-conceptual) ·
+[Accounts and routing](#accounts-and-routing) · [Demo accounts](#demo-accounts)
 
+## Installation
+
+### Prerequisites
+- **Node.js 18 or newer** (a current LTS is best; developed on Node 24) and **npm** (bundled with Node).
+- **Git**.
+- Optional: a free [Supabase](https://supabase.com) project, only if you want data shared live
+  across browsers. Without it the app works fully, storing data in your browser.
+
+### Quick start
+```bash
+git clone https://github.com/kimerlinfoo2024-arch/coffeebot_platform.git
+cd coffeebot_platform
+npm install
+npm run dev
+```
+Open **http://localhost:5173**. That is all that is needed for browser-only mode; the footer will
+say *This browser only*. Use the [demo accounts](#demo-accounts) to explore each dashboard.
+
+To share data live across browsers, also follow [Configuration](#configuration) below.
+
+### MAMP note
+The repo lives under MAMP's `htdocs` folder, but the app is a Vite project and does **not** need
+Apache or PHP. Run it with `npm run dev`. To serve a production build from any static host
+(including Apache), run `npm run build` and publish `dist/`, making sure every path falls back to
+`index.html` (see `vercel.json` for the rule).
+
+## Commands
+```bash
+npm install                              # install dependencies
+npm run dev                              # dev server with hot reload, http://localhost:5173
+npm run build                            # production build -> dist/
+npm run preview                          # serve the production build locally
+node scripts/emit-brews.mjs [--every 3] [--count 20] [--machine m2]
+                                         # simulated machine; needs Supabase configured
+```
 There is no test suite or linter configured. `npm run build` is the check that the code compiles.
+To test on a phone on the same network, run `npx vite --host` and open the printed network URL.
+
+## Configuration
+The only configuration is two optional environment variables, read by Vite at start-up:
+
+| Variable | Meaning |
+|---|---|
+| `VITE_SUPABASE_URL` | Supabase project URL (Project Settings → API) |
+| `VITE_SUPABASE_ANON_KEY` | The "anon public" key from the same page |
+
+1. `cp .env.example .env.local` and paste in both values.
+2. In the Supabase SQL editor, run the whole of `supabase/schema.sql` once (safe to re-run).
+3. Restart `npm run dev`. The footer should now say **Live · shared data**.
+
+Full details, teammate onboarding and deployment are in [Shared data (Supabase)](#shared-data-supabase).
+`.env.local` is git-ignored; never commit it.
+
+## Troubleshooting
+| Symptom | Fix |
+|---|---|
+| Footer says *This browser only* although keys are set | The file must be named exactly `.env.local` in the project root, with no quotes; **restart** `npm run dev` |
+| Footer says *Sync error · this browser only* | Hover it for the error. Usually `supabase/schema.sql` has not been run, or the URL or key is wrong |
+| `npm install` or `vite` fails with syntax errors | Node is too old; upgrade to Node 18+ (`node -v`) |
+| Port 5173 is busy | Vite picks the next free port and prints it; or stop the other process |
+| Deep link or refresh gives a 404 when deployed | The host needs a fallback to `index.html` (Vercel uses `vercel.json`) |
+| Deployed site ignores Supabase | Set both variables in the host's settings **and redeploy**; Vite bakes them in at build time |
+| Demo data looks wrong or stale | Staff → Reports → Demo data → Reset (stop any running simulation first), or clear the site's localStorage |
+| `emit-brews.mjs` says "Missing VITE_SUPABASE_URL" | Create `.env.local` first, or export the two variables in your shell |
 
 ## How it fits together
 ```
@@ -104,6 +167,8 @@ and anyone on the wrong side of the learner / partner / staff split is sent to t
 ## Structure
 ```
 index.html           entry; preloads two of the self-hosted fonts
+.env.example         template for the optional Supabase variables
+vite.config.js       Vite config (React plugin only)
 vercel.json          rewrite so direct links (QR codes, refreshes) reach the app
 scripts/
   emit-brews.mjs     Node script that plays a machine against Supabase
@@ -170,8 +235,7 @@ Setup (about five minutes):
    VITE_SUPABASE_URL=
    VITE_SUPABASE_ANON_KEY=
    ```
-   (An `.env.example` template used to be in the repo but was removed in commit `4164da3`. Add it
-   back if you want one; `.gitignore` is already set to keep it while ignoring other `.env*` files.)
+   (`.env.example` in the repo is a template: `cp .env.example .env.local`.)
 4. The first browser to open the app seeds the table from `src/data/seed.js`. Staff can put
    everything back to the seed figures with **Reports → Demo data → Reset**.
 
@@ -381,5 +445,4 @@ organisation.
 - `visibility` (and `VISIBILITY_ITEMS`, `setVisibility`) is still in the store and shared data, but
   nothing reads or sets it any more: the public About page no longer shows figures and Reports has no
   toggles. A line at the bottom of the staff Overview still mentions choosing what is shown in Reports.
-- `.env.example` is missing from the repo (see Shared data → Setup).
 - `coffeebot-logo.png` sits in the project root and is not used by the app.
