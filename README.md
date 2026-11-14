@@ -34,7 +34,7 @@ Rebuilt from a single-file HTML prototype into React + Vite, with a few delibera
 [Installation](#installation) · [Commands](#commands) · [Configuration](#configuration) ·
 [Troubleshooting](#troubleshooting) · [How it fits together](#how-it-fits-together) ·
 [Information architecture](#information-architecture) · [Structure](#structure) ·
-[Shared data (Supabase)](#shared-data-supabase) · [Quizzes and missions](#quizzes-and-missions) ·
+[Shared data (Supabase)](#shared-data-supabase) · [Deployment](#deploying-vercel) · [Quizzes and missions](#quizzes-and-missions) ·
 [Green computing](#green-computing) · [Functional vs conceptual](#what-is-functional-and-what-is-conceptual) ·
 [Accounts and routing](#accounts-and-routing) · [Demo accounts](#demo-accounts)
 
@@ -259,10 +259,62 @@ every row, so share it only with the team and rotate it (Project Settings → AP
 A brand-new Supabase project needs `supabase/schema.sql` run once in its SQL editor.
 
 ### Deploying (Vercel)
-`vercel.json` rewrites every path to `index.html`, so a QR code or a refresh on a deep link reaches
-the app. The two `VITE_SUPABASE_*` variables must also be set in the Vercel project's environment
-settings, **and the site redeployed afterwards**: Vite bakes them in at build time. Without them the
-deployed site runs in browser-only mode.
+The live site runs on Vercel at **https://coffeebot-grounds-up.vercel.app**, with its data in Supabase.
+It is a static Vite build, so any static host works. These steps use Vercel.
+
+**Before you start**, have the Supabase project ready: `supabase/schema.sql` run once in its SQL
+editor, and the project URL and "anon public" key from Project Settings → API.
+
+| Setting | Value |
+|---|---|
+| Framework preset | Vite |
+| Install command | `npm install` |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Node version | 18 or newer |
+
+| Environment variable | Value | Environments |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Supabase project URL | Production, Preview |
+| `VITE_SUPABASE_ANON_KEY` | the "anon public" key | Production, Preview |
+
+**Option A: from the Vercel website**
+1. Vercel → Add New → Project → Import the GitHub repository (fork it first if it belongs to
+   another account, so your Vercel can see it).
+2. Leave the settings above as detected, open **Environment Variables**, add the two rows, then **Deploy**.
+3. Settings → Git → set the **Production Branch** to `main`. Every push to `main` then redeploys.
+
+**Option B: from the command line**
+```bash
+npm install --global vercel@latest
+vercel login
+vercel link                       # create or choose the project
+vercel env add VITE_SUPABASE_URL --environment production
+vercel env add VITE_SUPABASE_ANON_KEY --environment production --type config
+vercel deploy --prod
+```
+Vercel asks you to choose a type for the anon key because the `VITE_` prefix exposes it to the
+browser. `config` is correct: the key is meant to reach the browser (see the security note above).
+Repeat the two `env add` lines with `--environment preview` if you want preview deployments connected too.
+
+**Check it worked** (do all three):
+1. The footer of any page says **Live · shared data**. If it says *This browser only*, the variables
+   are missing or were added after the last build: add them, then redeploy.
+2. Open `/m/m1` directly in a new tab. It must show the Hartwell L3 pantry page, not a 404. This proves
+   the `vercel.json` rewrite is active.
+3. Sign in as staff, open Overview and press **Brew a cup**. A second browser on the same site shows the
+   counter move without a refresh.
+
+**Redeploying.** Vite bakes the two variables into the bundle at build time, so changing a variable does
+nothing until the next deployment. A site connected to GitHub redeploys on every push to `main`. A site
+deployed from the command line redeploys only when you run `vercel deploy --prod` again.
+
+**Printing QR codes.** The booth card encodes the address of the page it was opened on. Open the card on
+the production address before printing, never on `localhost` or a preview link.
+
+**Other hosts** (Netlify, Cloudflare Pages, GitHub Pages): run `npm run build`, publish `dist/`, set the same
+two variables at build time, and add a rule that serves `index.html` for every path, as `vercel.json` does
+here. Without that rule a QR scan or a refresh on any page except the landing page returns 404.
 
 ### Simulated IoT feed
 Four simulated machines live on the staff Overview under **Live from the machines**. A brew
